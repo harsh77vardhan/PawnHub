@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "PawnHub",
+  "version": "1.0.0",
+  "description": "Cosmetic customizer and interactive vibe manager for online chess.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.chess.com/*",
+        "https://chess.com/*"
+      ],
+      "js": ["content/content.js"],
+      "css": ["content/content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
