@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PawnHub - Customizer Settings</title>
+  <link rel="stylesheet" href="options.css">
+  <link rel="stylesheet" href="../content/content.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <span class="icon">♟️</span>
+        <h1>PawnHub Customizer</h1>
+      </div>
+      <p class="subtitle">Personalize your chess board and pieces with 12 immersive themes and Comedy Mode.</p>
+    </header>
+
+    <main class="grid-layout">
+      <!-- Section 1: Interactive Test Lab (Audition Without Playing) -->
+      <section class="card test-lab-card">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">🧪 Interactive Test Lab</h2>
+            <p class="card-desc">Click any button to test and preview full-screen animations and synthesized audio live:</p>
+          </div>
+          <button id="test-random-combo-btn" class="btn-primary-glow">🎲 Play Random Combo</button>
+        </div>
+
+        <div class="test-group">
+          <span class="test-group-title">Animation Sequences</span>
+          <div class="button-grid">
+            <button class="test-btn" data-effect="bonk">💥 Ram & Launch</button>
+            <button class="test-btn" data-effect="karate">🥋 Karate Chop</button>
+            <button class="test-btn" data-effect="cannon">💣 Cannon Shot</button>
+            <button class="test-btn" data-effect="slip">🍌 Banana Slip</button>
+            <button class="test-btn" data-effect="sumo">🤼 Sumo Shove</button>
+            <button class="test-btn" data-effect="vacuum">🌀 Vacuum Suck</button>
+            <button class="test-btn" data-effect="queen">👑 Queen Blast</button>
+            <button class="test-btn" data-effect="check">⚠️ Check Panic</button>
+            <button class="test-btn" data-effect="checkmate">🏆 Victory Confetti</button>
+            <button class="test-btn" data-effect="castle">🏰 Castling Swap</button>
+            <button class="test-btn" data-effect="promotion">⭐ Promotion Crown</button>
+            <button class="test-btn" data-effect="joke">💬 Joke Speech Bubble</button>
+          </div>
+        </div>
+
+        <div class="test-group">
+          <span class="test-group-title">Synthesized Sound FX (Web Audio API)</span>
+          <div class="button-grid sound-grid">
+            <button class="test-sound-btn" data-sound="bonk">🔊 Bonk</button>
+            <button class="test-sound-btn" data-sound="pow">🔊 Pow</button>
+            <button class="test-sound-btn" data-sound="kaboom">🔊 Kaboom</button>
+            <button class="test-sound-btn" data-sound="splat">🔊 Splat</button>
+            <button class="test-sound-btn" data-sound="whoosh">🔊 Whoosh</button>
+            <button class="test-sound-btn" data-sound="boing">🔊 Boing</button>
+            <button class="test-sound-btn" data-sound="pop">🔊 Pop</button>
+            <button class="test-sound-btn" data-sound="laser_zap">🔊 Laser Zap</button>
+            <button class="test-sound-btn" data-sound="slide_whistle">🔊 Slide Whistle</button>
+            <button class="test-sound-btn" data-sound="fanfare">🔊 Fanfare</button>
+            <button class="test-sound-btn" data-sound="sad_trombone">🔊 Sad Trombone</button>
+            <button class="test-sound-btn" data-sound="party_horn">🔊 Party Horn</button>
+            <button class="test-sound-btn" data-sound="drumroll">🔊 Drumroll</button>
+            <button class="test-sound-btn" data-sound="applause">🔊 Applause</button>
+            <button class="test-sound-btn" data-sound="ding">🔊 Ding</button>
+            <button class="test-sound-btn" data-sound="glitch">🔊 Glitch</button>
+            <button class="test-sound-btn" data-sound="alarm">🔊 Alarm</button>
+            <button class="test-sound-btn" data-sound="drip">🔊 Sweat Drip</button>
+            <button class="test-sound-btn" data-sound="victory">🔊 Victory Grand</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: 12 Board & Piece Themes -->
+      <section class="card">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">1. Board & Piece Theme</h2>
+            <p class="card-desc">Choose from 12 immersive themes. Each theme changes the board colors AND introduces matching custom vector pieces:</p>
+          </div>
+          <span class="badge">12 Themes</span>
+        </div>
+        <select id="theme-select" class="theme-dropdown">
+          <option value="default">Original (chess.com default)</option>
+          <option value="candy">🍭 Candy Land</option>
+          <option value="lava">🌋 Lava Volcano</option>
+          <option value="space">🌌 Deep Space</option>
+          <option value="haunted">🏚️ Haunted Mansion</option>
+          <option value="underwater">🌊 Underwater Reef</option>
+          <option value="arcade">🕹️ Retro Arcade</option>
+          <option value="desert">🏜️ Desert Pyramids</option>
+          <option value="jungle">🌴 Wild Jungle</option>
+          <option value="ice">❄️ Ice Kingdom</option>
+          <option value="cyberpunk">⚡ Cyberpunk Neon</option>
+          <option value="medieval">🏰 Medieval Castle</option>
+          <option value="pirate">🏴‍☠️ Pirate Seas</option>
+        </select>
+      </section>
+
+      <!-- Section 3: Comedy Mode Settings -->
+      <section class="card">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">2. 🎭 Comedy Mode</h2>
+            <p class="card-desc">React to in-game captures, checks, castling, and promotions with jokes, sound fx, and animations.</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="comedy-enabled-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div id="comedy-sub-options" class="sub-options">
+          <div class="switch-row">
+            <span class="sub-label">💬 Funny Toast Jokes</span>
+            <label class="toggle-switch small">
+              <input type="checkbox" id="comedy-jokes-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="switch-row">
+            <span class="sub-label">✨ Visual Reactions (RIP Tombstone, Board Shake, King Wobble)</span>
+            <label class="toggle-switch small">
+              <input type="checkbox" id="comedy-effects-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="switch-row">
+            <span class="sub-label">🔊 Synthesized Sound FX (Web Audio API)</span>
+            <label class="toggle-switch small">
+              <input type="checkbox" id="comedy-sounds-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="slider-row">
+            <span class="sub-label">Volume (<span id="volume-label">80%</span>)</span>
+            <input type="range" id="comedy-volume-slider" min="0" max="100" value="80">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Piece Replacements -->
+      <section class="card">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">3. Custom Piece Image Overrides</h2>
+            <p class="card-desc">Upload your own images (PNG/JPG) for any piece. Custom uploads override the theme's piece on that slot.</p>
+          </div>
+          <button id="reset-all-pieces-btn" class="btn-danger">Reset All Uploads</button>
+        </div>
+
+        <!-- Color Tabs -->
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="white">White Pieces</button>
+          <button class="tab-btn" data-tab="black">Black Pieces</button>
+        </div>
+
+        <!-- Pieces Containers -->
+        <div id="white-pieces-list" class="piece-grid tab-content active"></div>
+        <div id="black-pieces-list" class="piece-grid tab-content"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>⚡ Changes save to <code>chrome.storage.local</code> and apply instantly to chess.com.</span>
+    </footer>
+  </div>
+
+  <script src="../content/themes.js"></script>
+  <script src="../content/audio.js"></script>
+  <script src="../content/effects.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

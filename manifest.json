@@ -1,16 +1,31 @@
 {
   "manifest_version": 3,
   "name": "PawnHub",
-  "version": "1.0.0",
-  "description": "Cosmetic customizer and interactive vibe manager for online chess.",
+  "version": "1.3.0",
+  "description": "Cosmetic customizer, 12 immersive themes, and high-impact Comedy Mode animations for chess.com.",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "PawnHub Settings"
+  },
+  "options_page": "options/options.html",
   "content_scripts": [
     {
       "matches": [
         "https://www.chess.com/*",
         "https://chess.com/*"
       ],
-      "js": ["content/content.js"],
-      "css": ["content/content.css"],
+      "js": [
+        "content/themes.js",
+        "content/audio.js",
+        "content/effects.js",
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
       "run_at": "document_idle"
     }
   ]

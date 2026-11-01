@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PawnHub Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span class="icon">♟️</span>
+      <h1>PawnHub</h1>
+    </div>
+    <button id="open-tab-btn" class="icon-btn" title="Open full tab settings">↗ Full Tab</button>
+  </header>
+
+  <main class="content">
+    <!-- Section 1: 12 Immersive Themes Selector -->
+    <section class="section">
+      <div class="section-header">
+        <label for="theme-select" class="section-title">Board & Piece Theme</label>
+        <span class="badge">12 Themes</span>
+      </div>
+      <select id="theme-select" class="theme-dropdown">
+        <option value="default">Original (chess.com default)</option>
+        <option value="candy">🍭 Candy Land</option>
+        <option value="lava">🌋 Lava Volcano</option>
+        <option value="space">🌌 Deep Space</option>
+        <option value="haunted">🏚️ Haunted Mansion</option>
+        <option value="underwater">🌊 Underwater Reef</option>
+        <option value="arcade">🕹️ Retro Arcade</option>
+        <option value="desert">🏜️ Desert Pyramids</option>
+        <option value="jungle">🌴 Wild Jungle</option>
+        <option value="ice">❄️ Ice Kingdom</option>
+        <option value="cyberpunk">⚡ Cyberpunk Neon</option>
+        <option value="medieval">🏰 Medieval Castle</option>
+        <option value="pirate">🏴‍☠️ Pirate Seas</option>
+      </select>
+    </section>
+
+    <!-- Section 2: Comedy Mode -->
+    <section class="section comedy-section">
+      <div class="switch-row master-switch">
+        <div>
+          <span class="section-title">🎭 Comedy Mode</span>
+          <p class="section-desc">Makes games funnier with popups, sound effects & animations.</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="comedy-enabled-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Sub-options container -->
+      <div id="comedy-sub-options" class="sub-options">
+        <div class="switch-row">
+          <span class="sub-label">💬 Funny Toast Jokes</span>
+          <label class="toggle-switch small">
+            <input type="checkbox" id="comedy-jokes-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="slider-row">
+          <span class="sub-label">Joke Size (<span id="joke-size-label">30px</span>)</span>
+          <input type="range" id="joke-size-slider" min="24" max="42" value="30">
+        </div>
+
+        <div class="slider-row">
+          <span class="sub-label">Joke Duration (<span id="joke-duration-label">3.8s</span>)</span>
+          <input type="range" id="joke-duration-slider" min="20" max="60" value="38">
+        </div>
+
+        <div class="switch-row">
+          <span class="sub-label">✨ Visual Reactions (RIP / Shake)</span>
+          <label class="toggle-switch small">
+            <input type="checkbox" id="comedy-effects-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="switch-row">
+          <span class="sub-label">🔊 Synthesized Sound FX</span>
+          <label class="toggle-switch small">
+            <input type="checkbox" id="comedy-sounds-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="slider-row" id="volume-row">
+          <span class="sub-label">Volume (<span id="volume-label">80%</span>)</span>
+          <input type="range" id="comedy-volume-slider" min="0" max="100" value="80">
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Custom Pieces Uploader -->
+    <section class="section">
+      <div class="section-header">
+        <span class="section-title">Custom Upload Overrides</span>
+        <button id="reset-all-pieces-btn" class="text-btn" title="Reset all pieces to default">Reset All</button>
+      </div>
+
+      <button id="open-options-action-btn" class="btn-primary-tab">
+        🎨 Upload Custom Images (Full Tab)
+      </button>
+      <p class="section-desc linux-tip">User uploads will override theme pieces on matching slots.</p>
+
+      <!-- Sub-tabs: White / Black -->
+      <div class="tab-bar">
+        <button class="tab-btn active" data-tab="white">White Pieces</button>
+        <button class="tab-btn" data-tab="black">Black Pieces</button>
+      </div>
+
+      <!-- White Pieces List -->
+      <div id="white-pieces-list" class="piece-grid tab-content active"></div>
+
+      <!-- Black Pieces List -->
+      <div id="black-pieces-list" class="piece-grid tab-content"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span id="status-indicator">⚡ Changes apply live to chess.com</span>
+  </footer>
+
+  <script src="../content/themes.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

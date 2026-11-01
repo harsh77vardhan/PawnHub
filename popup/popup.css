@@ -1,0 +1,403 @@
+/* ==========================================================================
+   PawnHub - Extension Popup Styles
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 350px;
+  background-color: #0f172a; /* Slate 900 */
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  user-select: none;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo .icon {
+  font-size: 20px;
+}
+
+.logo h1 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+.icon-btn {
+  background: #334155;
+  border: 1px solid #475569;
+  color: #38bdf8;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background: #475569;
+  color: #ffffff;
+}
+
+/* Main Content */
+.content {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+}
+
+.section-desc {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.3;
+}
+
+.linux-tip {
+  color: #38bdf8;
+  font-size: 10.5px;
+  line-height: 1.3;
+}
+
+/* Comedy Mode Cards & Toggles */
+.comedy-section {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.switch-row.master-switch {
+  padding-bottom: 8px;
+  border-bottom: 1px solid #334155;
+}
+
+.sub-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding-left: 4px;
+  transition: opacity 0.2s;
+}
+
+.sub-options.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.sub-label {
+  font-size: 12px;
+  color: #e2e8f0;
+}
+
+/* Custom CSS Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #334155;
+  transition: 0.2s;
+  border-radius: 22px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #38bdf8;
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
+.toggle-switch.small {
+  width: 32px;
+  height: 18px;
+}
+
+.toggle-switch.small .slider:before {
+  height: 12px;
+  width: 12px;
+  left: 3px;
+  bottom: 3px;
+}
+
+.toggle-switch.small input:checked + .slider:before {
+  transform: translateX(14px);
+}
+
+/* Volume Slider */
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider-row input[type="range"] {
+  width: 120px;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
+/* Primary Tab Button */
+.btn-primary-tab {
+  width: 100%;
+  padding: 8px 10px;
+  background-color: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary-tab:hover {
+  background-color: #0369a1;
+}
+
+/* Dropdown */
+.theme-dropdown {
+  width: 100%;
+  padding: 8px 10px;
+  background-color: #1e293b;
+  color: #f8fafc;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.theme-dropdown:focus {
+  border-color: #38bdf8;
+}
+
+/* Tabs */
+.tab-bar {
+  display: flex;
+  border-radius: 6px;
+  background-color: #1e293b;
+  padding: 3px;
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background-color: #38bdf8;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Piece Row */
+.piece-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background-color: #1e293b;
+  border-radius: 6px;
+  border: 1px solid #334155;
+}
+
+.piece-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.piece-symbol {
+  font-size: 18px;
+  width: 22px;
+  text-align: center;
+}
+
+.piece-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.piece-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.piece-preview {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background-color: #0f172a;
+  border: 1px dashed #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.piece-preview.has-image {
+  border-style: solid;
+  border-color: #38bdf8;
+}
+
+.btn-upload {
+  padding: 4px 8px;
+  background-color: #334155;
+  color: #f8fafc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-upload:hover {
+  background-color: #475569;
+}
+
+.btn-clear {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px;
+  display: none;
+}
+
+.btn-clear.visible {
+  display: inline-block;
+}
+
+.text-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.text-btn:hover {
+  text-decoration: underline;
+}
+
+/* Footer */
+.footer {
+  padding: 10px 16px;
+  background-color: #1e293b;
+  border-top: 1px solid #334155;
+  text-align: center;
+  color: #64748b;
+  font-size: 11px;
+}
