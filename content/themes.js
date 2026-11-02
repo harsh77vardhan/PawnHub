@@ -184,8 +184,14 @@ const PAWNHUB_THEMES = {
   }
 };
 
-// Generates an exact 8x8 SVG checkerboard vector data URL
+const BOARD_SVG_CACHE = {};
+const PIECE_SVG_CACHE = {};
+
+// Generates an exact 8x8 SVG checkerboard vector data URL (cached)
 function generateBoardSvg(light, dark) {
+  const cacheKey = `${light}_${dark}`;
+  if (BOARD_SVG_CACHE[cacheKey]) return BOARD_SVG_CACHE[cacheKey];
+
   let darkSquares = "";
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 8; x++) {
@@ -195,11 +201,16 @@ function generateBoardSvg(light, dark) {
     }
   }
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" width="800" height="800"><rect width="8" height="8" fill="${light}"/>${darkSquares}</svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  BOARD_SVG_CACHE[cacheKey] = dataUrl;
+  return dataUrl;
 }
 
-// Generates a crisp vector badge with theme emoji
+// Generates a crisp vector badge with theme emoji (cached)
 function generateThemedPieceSvg(emoji, isWhite, themeId) {
+  const cacheKey = `${emoji}_${isWhite ? "w" : "b"}_${themeId}`;
+  if (PIECE_SVG_CACHE[cacheKey]) return PIECE_SVG_CACHE[cacheKey];
+
   // White piece styling: Bright glowing badge
   // Black piece styling: Deep saturated badge
   const bg = isWhite ? "#ffffff" : "#0f172a";
@@ -208,7 +219,9 @@ function generateThemedPieceSvg(emoji, isWhite, themeId) {
     <circle cx="50" cy="50" r="44" fill="${bg}" stroke="${border}" stroke-width="5"/>
     <text x="50" y="66" font-size="50" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif">${emoji}</text>
   </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  PIECE_SVG_CACHE[cacheKey] = dataUrl;
+  return dataUrl;
 }
 
 // Export for extension modules

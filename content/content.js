@@ -3,13 +3,6 @@
 // ==========================================================================
 // High-visibility, cosmetic-only extension for chess.com.
 
-(function () {
-  try {
-    initPawnHub();
-  } catch (err) {
-    console.warn("[PawnHub] Safe guard caught an error during initialization:", err);
-  }
-})();
 
 // ==========================================================================
 // Global Settings
@@ -211,11 +204,12 @@ function getMoveSignature(board) {
 // Mutation Handling & Capture Sequence Trigger
 // ==========================================================================
 function handleBoardMutations(board) {
-  const signature = getMoveSignature(board);
-  if (!signature || signature === lastMoveSignature) return;
-  lastMoveSignature = signature;
+  try {
+    const signature = getMoveSignature(board);
+    if (!signature || signature === lastMoveSignature) return;
+    lastMoveSignature = signature;
 
-  const currentPieces = board.querySelectorAll(".piece");
+    const currentPieces = board.querySelectorAll(".piece");
   const currentTotal = currentPieces.length;
 
   // A. Game Start
@@ -226,13 +220,16 @@ function handleBoardMutations(board) {
     if (settings.comedy_enabled && settings.comedy_jokes) {
       window.PawnHubEffects.showJoke(getRandomJoke("game_start"), "⚔️", settings.joke_duration, settings.joke_size);
     }
-    if (settings.comedy_enabled && settings.comedy_sounds) {
-      window.PawnHubAudio.play("fanfare");
+    if (window.PawnHubAudio) {
+      window.PawnHubAudio.playEvent("game_start", "fanfare");
     }
     return;
   }
 
   if (currentTotal < 32) gameStartedLogged = true;
+
+  // Determine board orientation (flipped = Black at bottom, user is Black)
+  const isBoardFlipped = board.classList.contains("flipped") || !!document.querySelector(".board.flipped, wc-chess-board.flipped");
 
   // Highlights identify the origin and destination of the move
   const highlights = Array.from(board.querySelectorAll(".highlight"));
@@ -255,6 +252,12 @@ function handleBoardMutations(board) {
   const lastNode = document.querySelector("vertical-move-list .node:last-child, .move-node-highlight");
   const moveText = lastNode ? lastNode.textContent.trim() : "";
 
+  let isMyPiece = true;
+  if (fromSquare && boardSnapshot[fromSquare]) {
+    const isWhiteAttacker = boardSnapshot[fromSquare].pieceType.startsWith("w");
+    isMyPiece = isBoardFlipped ? !isWhiteAttacker : isWhiteAttacker;
+  }
+
   // B. Detect Capture
   if (fromSquare && toSquare && boardSnapshot[fromSquare] && boardSnapshot[toSquare]) {
     const attackerSnapshot = boardSnapshot[fromSquare];
@@ -263,8 +266,9 @@ function handleBoardMutations(board) {
 
     const isQueenCapture = victimSnapshot.pieceType === "wq" || victimSnapshot.pieceType === "bq";
     const isRookCapture = victimSnapshot.pieceType === "wr" || victimSnapshot.pieceType === "br";
+    const captureEventKey = isQueenCapture ? "queen_capture" : (isMyPiece ? "capture_mine" : "capture_opponent");
 
-    console.log(`[PawnHub] Capture detected: ${attackerSnapshot.pieceType} from ${fromSquare} took ${victimSnapshot.pieceType} at ${toSquare}!`);
+    console.log(`[PawnHub] Capture detected (${captureEventKey}): ${attackerSnapshot.pieceType} took ${victimSnapshot.pieceType} at ${toSquare}!`);
 
     if (settings.comedy_enabled && settings.comedy_effects) {
       window.PawnHubEffects.playCapture({
@@ -274,14 +278,16 @@ function handleBoardMutations(board) {
         toRect: victimSnapshot.rect,
         realAttackerEl: realAttackerEl,
         isQueenCapture: isQueenCapture,
-        isRookCapture: isRookCapture
+        isRookCapture: isRookCapture,
+        eventKey: captureEventKey
       });
+    } else {
+      if (window.PawnHubAudio) window.PawnHubAudio.playEvent(captureEventKey, "bonk");
     }
 
     if (settings.comedy_enabled && settings.comedy_jokes) {
       const jokeKey = isQueenCapture ? "queen_capture" : "capture";
       const jokeIcon = isQueenCapture ? "👑" : "🪦";
-      // Show big speech bubble joke right after impact
       setTimeout(() => {
         window.PawnHubEffects.showJoke(getRandomJoke(jokeKey), jokeIcon, settings.joke_duration, settings.joke_size);
       }, 350);
@@ -291,8 +297,12 @@ function handleBoardMutations(board) {
   else if (fromSquare && toSquare && boardSnapshot[fromSquare]) {
     const attackerSnapshot = boardSnapshot[fromSquare];
     const realPiece = board.querySelector(`.piece.${toSquare}`);
+    const moveEventKey = isMyPiece ? "move_mine" : "move_opponent";
+
     if (realPiece && settings.comedy_enabled && settings.comedy_effects) {
-      window.PawnHubEffects.playNormalMove(attackerSnapshot.rect, realPiece.getBoundingClientRect(), realPiece);
+      window.PawnHubEffects.playNormalMove(attackerSnapshot.rect, realPiece.getBoundingClientRect(), realPiece, { eventKey: moveEventKey });
+    } else {
+      if (window.PawnHubAudio) window.PawnHubAudio.playEvent(moveEventKey, "hop");
     }
   }
 
@@ -302,6 +312,8 @@ function handleBoardMutations(board) {
     if (kings.length > 0 && settings.comedy_enabled && settings.comedy_effects) {
       const kRect = kings[0].getBoundingClientRect();
       window.PawnHubEffects.playCastling(kRect, kRect);
+    } else {
+      if (window.PawnHubAudio) window.PawnHubAudio.playEvent("castle", "party_horn");
     }
     if (settings.comedy_enabled && settings.comedy_jokes) {
       window.PawnHubEffects.showJoke(getRandomJoke("castle"), "🏰", settings.joke_duration, settings.joke_size);
@@ -314,6 +326,8 @@ function handleBoardMutations(board) {
       const promoPiece = board.querySelector(`.piece.${toSquare}`);
       if (promoPiece && settings.comedy_enabled && settings.comedy_effects) {
         window.PawnHubEffects.playPromotion(promoPiece.getBoundingClientRect());
+      } else {
+        if (window.PawnHubAudio) window.PawnHubAudio.playEvent("promotion", "level_up");
       }
     }
     if (settings.comedy_enabled && settings.comedy_jokes) {
@@ -323,8 +337,11 @@ function handleBoardMutations(board) {
 
   // F. Check & Checkmate
   if (moveText.includes("#")) {
+    const winEventKey = isMyPiece ? "win" : "lose";
     if (settings.comedy_enabled && settings.comedy_effects) {
-      window.PawnHubEffects.playCheckmate();
+      window.PawnHubEffects.playCheckmate(winEventKey);
+    } else {
+      if (window.PawnHubAudio) window.PawnHubAudio.playEvent(winEventKey, winEventKey === "win" ? "victory" : "sad_trombone");
     }
     if (settings.comedy_enabled && settings.comedy_jokes) {
       window.PawnHubEffects.showJoke(getRandomJoke("checkmate"), "🏆", settings.joke_duration, settings.joke_size);
@@ -333,6 +350,8 @@ function handleBoardMutations(board) {
     const kings = board.querySelectorAll(".piece.wk, .piece.bk");
     if (kings.length > 0 && settings.comedy_enabled && settings.comedy_effects) {
       window.PawnHubEffects.playCheck(kings[0].getBoundingClientRect());
+    } else {
+      if (window.PawnHubAudio) window.PawnHubAudio.playEvent("check", "alarm");
     }
     if (settings.comedy_enabled && settings.comedy_jokes) {
       window.PawnHubEffects.showJoke(getRandomJoke("check"), "⚠️", settings.joke_duration, settings.joke_size);
@@ -342,39 +361,93 @@ function handleBoardMutations(board) {
   // Save new snapshot for subsequent move comparison
   boardSnapshot = takeBoardSnapshot(board);
   previousPieceCount = currentTotal;
+  } catch (err) {
+    console.warn("[PawnHub] Safe guard caught mutation handling error:", err.message);
+  }
 }
 
+let currentBoardObserver = null;
+let currentBodyObserver = null;
+
 function observeBoard(board) {
+  if (!board || board.__pawnhub_observed) return;
+  board.__pawnhub_observed = true;
+
+  if (currentBoardObserver) {
+    try { currentBoardObserver.disconnect(); } catch (e) {}
+  }
+  if (currentBodyObserver) {
+    try { currentBodyObserver.disconnect(); } catch (e) {}
+  }
+
   console.log("[PawnHub] Connected High-Impact MutationObserver to <wc-chess-board>.");
   boardSnapshot = takeBoardSnapshot(board);
   previousPieceCount = board.querySelectorAll(".piece").length;
   lastMoveSignature = getMoveSignature(board);
 
   let debounceTimer = null;
-  const observer = new MutationObserver(() => {
+  currentBoardObserver = new MutationObserver(() => {
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => handleBoardMutations(board), 35);
+    debounceTimer = setTimeout(() => {
+      try {
+        handleBoardMutations(board);
+      } catch (err) {
+        console.warn("[PawnHub] Safe guard caught mutation error:", err.message);
+      }
+    }, 35);
   });
 
-  observer.observe(board, {
+  currentBoardObserver.observe(board, {
     childList: true,
     subtree: true,
     attributes: true,
     attributeFilter: ["class"]
   });
 
-  // Watch for game-over popup
-  const bodyObserver = new MutationObserver(() => {
-    const gameOverModal = document.querySelector(".game-over-modal-shell-content, .game-result-component, [data-cy='game-over-modal']");
-    if (gameOverModal && !gameOverModal.dataset.pawnhubSeen) {
-      gameOverModal.dataset.pawnhubSeen = "true";
-      if (settings.comedy_enabled && settings.comedy_effects) window.PawnHubEffects.playCheckmate();
-      if (settings.comedy_enabled && settings.comedy_jokes) {
-        window.PawnHubEffects.showJoke(getRandomJoke("checkmate"), "🏆", settings.joke_duration, settings.joke_size);
+  // Watch for game-over popup (Win / Lose / Draw) & board reconnections with throttle
+  let bodyThrottle = null;
+  currentBodyObserver = new MutationObserver(() => {
+    if (bodyThrottle) return;
+    bodyThrottle = setTimeout(() => {
+      bodyThrottle = null;
+      try {
+        if (!board.isConnected) {
+          if (currentBoardObserver) currentBoardObserver.disconnect();
+          if (currentBodyObserver) currentBodyObserver.disconnect();
+          board.__pawnhub_observed = false;
+          attachBoardWatcher();
+          return;
+        }
+
+        const gameOverModal = document.querySelector(".game-over-modal-shell-content, .game-result-component, [data-cy='game-over-modal']");
+        if (gameOverModal && !gameOverModal.dataset.pawnhubSeen) {
+          gameOverModal.dataset.pawnhubSeen = "true";
+          const isBoardFlipped = !!document.querySelector("wc-chess-board.flipped, .board.flipped");
+          const modalText = (gameOverModal.textContent || "").toLowerCase();
+          let resultKey = "win";
+          if (modalText.includes("draw") || modalText.includes("stalemate") || modalText.includes("repetition") || modalText.includes("agreed") || modalText.includes("insufficient")) {
+            resultKey = "draw";
+          } else if (modalText.includes("lost") || modalText.includes("defeat") || (modalText.includes("black won") && !isBoardFlipped) || (modalText.includes("white won") && isBoardFlipped)) {
+            resultKey = "lose";
+          }
+
+          if (settings.comedy_enabled && settings.comedy_effects) {
+            window.PawnHubEffects.playCheckmate(resultKey);
+          } else {
+            if (window.PawnHubAudio) window.PawnHubAudio.playEvent(resultKey, resultKey === "lose" ? "sad_trombone" : (resultKey === "draw" ? "ding" : "victory"));
+          }
+
+          if (settings.comedy_enabled && settings.comedy_jokes) {
+            window.PawnHubEffects.showJoke(getRandomJoke("checkmate"), "🏆", settings.joke_duration, settings.joke_size);
+          }
+        }
+      } catch (err) {
+        console.warn("[PawnHub] Safe guard caught body observer error:", err.message);
       }
-    }
+    }, 150);
   });
-  bodyObserver.observe(document.body, { childList: true, subtree: true });
+
+  currentBodyObserver.observe(document.body, { childList: true, subtree: true });
 }
 
 // ==========================================================================
@@ -395,43 +468,79 @@ function applyCustomStyles() {
   let cssRules = [];
 
   const themeId = settings.pawnhub_theme || "default";
-  const theme = (typeof PAWNHUB_THEMES !== "undefined" && PAWNHUB_THEMES[themeId]) ? PAWNHUB_THEMES[themeId] : null;
 
-  if (theme && theme.board) {
-    const boardSvgUrl = generateBoardSvg(theme.board.light, theme.board.dark);
-    cssRules.push(`
-      wc-chess-board, .chessboard-component, .board {
-        background-image: url("${boardSvgUrl}") !important;
-        background-size: 100% 100% !important;
-        background-repeat: no-repeat !important;
-      }
-    `);
-  }
+  // 1. Check for 5 Premium Handcrafted Piece Sets
+  if (window.PawnHubPremiumSets && window.PawnHubPremiumSets.get(themeId)) {
+    const premiumSet = window.PawnHubPremiumSets.get(themeId);
 
-  if (theme && theme.pieces) {
-    const pieceTypes = ["p", "n", "b", "r", "q", "k"];
-    pieceTypes.forEach(p => {
-      const emoji = theme.pieces[p];
-      if (emoji) {
-        const whiteSvg = generateThemedPieceSvg(emoji, true, themeId);
-        const blackSvg = generateThemedPieceSvg(emoji, false, themeId);
+    // Matching board background
+    if (premiumSet.board) {
+      const boardSvgUrl = generateBoardSvg(premiumSet.board.light, premiumSet.board.dark);
+      cssRules.push(`
+        wc-chess-board, .chessboard-component, .board {
+          background-image: url("${boardSvgUrl}") !important;
+          background-size: 100% 100% !important;
+          background-repeat: no-repeat !important;
+        }
+      `);
+    }
 
-        cssRules.push(`
-          wc-chess-board .piece.w${p}, .board .piece.w${p}, .piece.w${p} {
-            background-image: url("${whiteSvg}") !important;
-            background-size: contain !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-          }
-          wc-chess-board .piece.b${p}, .board .piece.b${p}, .piece.b${p} {
-            background-image: url("${blackSvg}") !important;
-            background-size: contain !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-          }
-        `);
-      }
+    // Handcrafted premium vector pieces (distinct silhouettes, gradients, 3D shading)
+    Object.keys(premiumSet.pieces).forEach(pKey => {
+      const svgUrl = premiumSet.pieces[pKey];
+      cssRules.push(`
+        wc-chess-board .piece.${pKey},
+        .board .piece.${pKey},
+        #board-layout-chessboard .piece.${pKey},
+        .piece.${pKey} {
+          background-image: url("${svgUrl}") !important;
+          background-size: contain !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
+        }
+      `);
     });
+  }
+  // 2. Fallback to 12 Themed Board & Emojis
+  else {
+    const theme = (typeof PAWNHUB_THEMES !== "undefined" && PAWNHUB_THEMES[themeId]) ? PAWNHUB_THEMES[themeId] : null;
+
+    if (theme && theme.board) {
+      const boardSvgUrl = generateBoardSvg(theme.board.light, theme.board.dark);
+      cssRules.push(`
+        wc-chess-board, .chessboard-component, .board {
+          background-image: url("${boardSvgUrl}") !important;
+          background-size: 100% 100% !important;
+          background-repeat: no-repeat !important;
+        }
+      `);
+    }
+
+    if (theme && theme.pieces) {
+      const pieceTypes = ["p", "n", "b", "r", "q", "k"];
+      pieceTypes.forEach(p => {
+        const emoji = theme.pieces[p];
+        if (emoji) {
+          const whiteSvg = generateThemedPieceSvg(emoji, true, themeId);
+          const blackSvg = generateThemedPieceSvg(emoji, false, themeId);
+
+          cssRules.push(`
+            wc-chess-board .piece.w${p}, .board .piece.w${p}, .piece.w${p} {
+              background-image: url("${whiteSvg}") !important;
+              background-size: contain !important;
+              background-repeat: no-repeat !important;
+              background-position: center !important;
+            }
+            wc-chess-board .piece.b${p}, .board .piece.b${p}, .piece.b${p} {
+              background-image: url("${blackSvg}") !important;
+              background-size: contain !important;
+              background-repeat: no-repeat !important;
+              background-position: center !important;
+            }
+          `);
+        }
+      });
+    }
   }
 
   const customPieces = settings.pawnhub_pieces || {};
@@ -459,40 +568,104 @@ function applyCustomStyles() {
 // Initialization
 // ==========================================================================
 function initPawnHub() {
-  console.log("%c[PawnHub]%c Initializing PawnHub Big Comedy Engine...", "color: #38bdf8; font-weight: bold;", "color: inherit;");
+  try {
+    console.log("%c[PawnHub]%c Initializing PawnHub Big Comedy Engine...", "color: #38bdf8; font-weight: bold;", "color: inherit;");
 
-  chrome.storage.local.get(null, (stored) => {
-    settings = { ...settings, ...stored };
+    chrome.storage.local.get(null, (stored) => {
+      try {
+        if (chrome.runtime.lastError || !stored || typeof stored !== "object") stored = {};
+        settings = { ...settings, ...stored };
 
-    // Apply Audio Volume
-    if (window.PawnHubAudio) {
-      window.PawnHubAudio.setVolume(settings.comedy_volume);
-      window.PawnHubAudio.setMuted(!settings.comedy_sounds || !settings.comedy_enabled);
-    }
+        // Apply Audio Volume & Custom Sounds
+        if (window.PawnHubAudio) {
+          window.PawnHubAudio.setVolume(settings.comedy_volume);
+          window.PawnHubAudio.setMuted(!settings.comedy_sounds || !settings.comedy_enabled);
+          if (stored.pawnhub_custom_sounds) {
+            window.PawnHubAudio.loadCustomSounds(stored.pawnhub_custom_sounds);
+            if (stored.pawnhub_custom_sounds.mute_chesscom) {
+              setChesscomMuteState(true);
+            }
+          }
+        }
 
-    applyCustomStyles();
-    attachBoardWatcher();
-  });
-
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== "local") return;
-    Object.keys(changes).forEach(key => {
-      settings[key] = changes[key].newValue;
+        applyCustomStyles();
+        attachBoardWatcher();
+      } catch (err) {
+        console.warn("[PawnHub] Error during storage load:", err.message);
+      }
     });
 
-    if (window.PawnHubAudio) {
-      window.PawnHubAudio.setVolume(settings.comedy_volume);
-      window.PawnHubAudio.setMuted(!settings.comedy_sounds || !settings.comedy_enabled);
-    }
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== "local") return;
+      try {
+        Object.keys(changes).forEach(key => {
+          settings[key] = changes[key].newValue;
+        });
 
-    applyCustomStyles();
-  });
+        if (window.PawnHubAudio) {
+          window.PawnHubAudio.setVolume(settings.comedy_volume);
+          window.PawnHubAudio.setMuted(!settings.comedy_sounds || !settings.comedy_enabled);
+        }
+
+        if (changes.pawnhub_custom_sounds && window.PawnHubAudio) {
+          window.PawnHubAudio.loadCustomSounds(changes.pawnhub_custom_sounds.newValue);
+          if (changes.pawnhub_custom_sounds.newValue?.mute_chesscom !== undefined) {
+            setChesscomMuteState(changes.pawnhub_custom_sounds.newValue.mute_chesscom);
+          }
+        }
+
+        applyCustomStyles();
+      } catch (err) {
+        console.warn("[PawnHub] Error during storage change handling:", err.message);
+      }
+    });
+  } catch (err) {
+    console.warn("[PawnHub] Error initializing extension:", err.message);
+  }
 }
 
+function setChesscomMuteState(enabled) {
+  window.__pawnhub_mute_chesscom = !!enabled;
+  if (enabled && !document.getElementById("pawnhub-mute-script")) {
+    const script = document.createElement("script");
+    script.id = "pawnhub-mute-script";
+    script.textContent = `
+      (function() {
+        window.__pawnhub_mute_chesscom = true;
+        const origPlay = HTMLMediaElement.prototype.play;
+        HTMLMediaElement.prototype.play = function() {
+          try {
+            if (window.__pawnhub_mute_chesscom && this.src && (this.src.includes(".mp3") || this.src.includes("/sounds/"))) {
+              this.muted = true;
+              return Promise.resolve();
+            }
+          } catch(e) {}
+          return origPlay.apply(this, arguments);
+        };
+      })();
+    `;
+    (document.head || document.documentElement).appendChild(script);
+  }
+}
+
+let watcherTimer = null;
+let watcherTimeout = null;
+
 function attachBoardWatcher() {
+  if (watcherTimer) clearInterval(watcherTimer);
+  if (watcherTimeout) clearTimeout(watcherTimeout);
+
   const findAndWatchBoard = () => {
     const board = document.querySelector("wc-chess-board, .chessboard, #board-layout-chessboard wc-chess-board");
     if (board) {
+      if (watcherTimer) {
+        clearInterval(watcherTimer);
+        watcherTimer = null;
+      }
+      if (watcherTimeout) {
+        clearTimeout(watcherTimeout);
+        watcherTimeout = null;
+      }
       observeBoard(board);
       return true;
     }
@@ -500,9 +673,26 @@ function attachBoardWatcher() {
   };
 
   if (!findAndWatchBoard()) {
-    const timer = setInterval(() => {
-      if (findAndWatchBoard()) clearInterval(timer);
+    watcherTimer = setInterval(() => {
+      if (findAndWatchBoard()) {
+        clearInterval(watcherTimer);
+        watcherTimer = null;
+      }
     }, 1000);
-    setTimeout(() => clearInterval(timer), 30000);
+    watcherTimeout = setTimeout(() => {
+      if (watcherTimer) {
+        clearInterval(watcherTimer);
+        watcherTimer = null;
+      }
+    }, 30000);
   }
+}
+
+// ==========================================================================
+// Kickoff
+// ==========================================================================
+try {
+  initPawnHub();
+} catch (err) {
+  console.warn("[PawnHub] Safe guard caught an error during initialization:", err);
 }

@@ -526,53 +526,216 @@
     }
   };
 
+  // ==========================================================================
+  // Custom Sounds Engine (AudioBuffer Caching & Polyphonic Limiter)
+  // ==========================================================================
+  let customSoundsConfig = null;
+  const cachedBuffers = {}; // soundId -> AudioBuffer
+  const lastPlayedSoundId = {}; // slotKey -> soundId
+  const activeSources = []; // Tracks currently playing AudioBufferSourceNodes (max 4)
+  const MAX_CONCURRENT_VOICES = 4;
+
+  function base64ToArrayBuffer(base64DataUrl) {
+    const commaIdx = base64DataUrl.indexOf(",");
+    const base64 = commaIdx >= 0 ? base64DataUrl.slice(commaIdx + 1) : base64DataUrl;
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  async function loadCustomSounds(config) {
+    customSoundsConfig = config;
+    if (!config || !config.slots) return;
+
+    const ctx = initAudio();
+    if (!ctx) return;
+
+    const slots = config.slots;
+    for (const slotKey of Object.keys(slots)) {
+      const slot = slots[slotKey];
+      if (!slot || !Array.isArray(slot.sounds)) continue;
+
+      for (const sound of slot.sounds) {
+        if (!sound.id || !sound.dataUrl) continue;
+        if (cachedBuffers[sound.id]) continue; // Already pre-decoded
+
+        try {
+          const arrayBuf = base64ToArrayBuffer(sound.dataUrl);
+          const decoded = await ctx.decodeAudioData(arrayBuf);
+          cachedBuffers[sound.id] = decoded;
+          sound.failed = false;
+        } catch (err) {
+          console.warn(`[PawnHub Audio] Failed to decode custom sound '${sound.name}' (${sound.id}):`, err);
+          sound.failed = true;
+        }
+      }
+    }
+  }
+
+  function playBuffer(audioBuffer, volumeMultiplier = 1.0) {
+    if (isMuted) return;
+    const ctx = initAudio();
+    if (!ctx || !audioBuffer) return;
+
+    // Polyphonic limit: Stop oldest source if 4 are already playing
+    while (activeSources.length >= MAX_CONCURRENT_VOICES) {
+      const oldest = activeSources.shift();
+      try {
+        oldest.stop();
+      } catch (e) {}
+    }
+
+    const source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+
+    const soundGain = ctx.createGain();
+    soundGain.gain.setValueAtTime(Math.max(0, Math.min(2.0, volumeMultiplier)), ctx.currentTime);
+
+    // Source -> SoundGain -> Compressor -> MasterGain -> Destination
+    source.connect(soundGain);
+    soundGain.connect(compressor || masterGain || ctx.destination);
+
+    source.start(ctx.currentTime);
+    activeSources.push(source);
+
+    source.onended = () => {
+      const idx = activeSources.indexOf(source);
+      if (idx !== -1) activeSources.splice(idx, 1);
+    };
+  }
+
+  function playSynth(soundName) {
+    if (isMuted) return;
+
+    const ctx = initAudio();
+    if (!ctx || !SOUND_EFFECTS[soundName]) return;
+
+    const randomPitch = 0.95 + Math.random() * 0.10;
+    const startTime = ctx.currentTime;
+
+    try {
+      SOUND_EFFECTS[soundName](startTime, randomPitch);
+    } catch (err) {
+      console.error("[PawnHub Audio] Error playing sound:", err);
+    }
+  }
+
+  function playEvent(eventKey, fallbackName) {
+    if (isMuted) return false;
+
+    // 1. Check if custom sounds config is active and slot has sounds
+    if (customSoundsConfig && customSoundsConfig.enabled !== false && customSoundsConfig.slots) {
+      const slot = customSoundsConfig.slots[eventKey];
+      if (slot && slot.enabled !== false && Array.isArray(slot.sounds) && slot.sounds.length > 0) {
+        const candidates = slot.sounds.filter(s => !s.failed && (cachedBuffers[s.id] || s.dataUrl));
+        if (candidates.length > 0) {
+          // Avoid playing the exact same sound twice in a row (if >1 sound in slot)
+          let picked = null;
+          if (candidates.length === 1) {
+            picked = candidates[0];
+          } else {
+            const pool = candidates.filter(s => s.id !== lastPlayedSoundId[eventKey]);
+            picked = (pool.length > 0 ? pool : candidates)[Math.floor(Math.random() * (pool.length || candidates.length))];
+          }
+
+          lastPlayedSoundId[eventKey] = picked.id;
+
+          if (cachedBuffers[picked.id]) {
+            playBuffer(cachedBuffers[picked.id], typeof picked.volume === "number" ? picked.volume : 1.0);
+            return true;
+          } else if (picked.dataUrl) {
+            // Lazy decode fallback
+            const ctx = initAudio();
+            if (ctx) {
+              try {
+                const arrayBuf = base64ToArrayBuffer(picked.dataUrl);
+                ctx.decodeAudioData(arrayBuf).then(decoded => {
+                  cachedBuffers[picked.id] = decoded;
+                  playBuffer(decoded, typeof picked.volume === "number" ? picked.volume : 1.0);
+                }).catch(() => {
+                  if (fallbackName) playSynth(fallbackName);
+                });
+                return true;
+              } catch (e) {}
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Fallback to PawnHub synthesized comedy sound
+    if (fallbackName && SOUND_EFFECTS[fallbackName]) {
+      playSynth(fallbackName);
+      return false;
+    }
+
+    return false;
+  }
+
+  function playCustomSound(sound) {
+    if (!sound) return;
+    const ctx = initAudio();
+    if (!ctx) return;
+
+    const vol = typeof sound.volume === "number" ? sound.volume : 1.0;
+    if (sound.id && cachedBuffers[sound.id]) {
+      playBuffer(cachedBuffers[sound.id], vol);
+      return;
+    }
+
+    if (sound.dataUrl) {
+      try {
+        const arrayBuf = base64ToArrayBuffer(sound.dataUrl);
+        ctx.decodeAudioData(arrayBuf).then(decoded => {
+          if (sound.id) cachedBuffers[sound.id] = decoded;
+          playBuffer(decoded, vol);
+        }).catch(err => {
+          console.error("[PawnHub Audio] Error previewing custom sound:", err);
+        });
+      } catch (err) {
+        console.error("[PawnHub Audio] Error converting base64 data:", err);
+      }
+    }
+  }
+
+  function safeWrap(fn, name) {
+    return function (...args) {
+      try {
+        return fn(...args);
+      } catch (err) {
+        console.warn(`[PawnHub Audio] Safe guard caught error in ${name}:`, err.message);
+      }
+    };
+  }
+
   // Public Audio API
   window.PawnHubAudio = {
-    init: initAudio,
+    init: safeWrap(initAudio, "init"),
 
-    setVolume: (volPercent) => {
+    setVolume: safeWrap((volPercent) => {
       currentVolume = Math.max(0, Math.min(100, volPercent)) / 100 * 0.85;
       if (masterGain && audioCtx) {
         masterGain.gain.setValueAtTime(isMuted ? 0 : currentVolume, audioCtx.currentTime);
       }
-    },
+    }, "setVolume"),
 
-    setMuted: (muted) => {
+    setMuted: safeWrap((muted) => {
       isMuted = !!muted;
       if (masterGain && audioCtx) {
         masterGain.gain.setValueAtTime(isMuted ? 0 : currentVolume, audioCtx.currentTime);
       }
-    },
+    }, "setMuted"),
 
-    play: (soundName) => {
-      if (isMuted) {
-        console.log("[PawnHub Audio] Audio is currently muted in settings.");
-        return;
-      }
-
-      const ctx = initAudio();
-      if (!ctx) {
-        console.warn("[PawnHub Audio] Audio blocked or AudioContext unavailable.");
-        return;
-      }
-
-      if (!SOUND_EFFECTS[soundName]) {
-        console.warn(`[PawnHub Audio] Sound '${soundName}' not found in library.`);
-        return;
-      }
-
-      // Slight pitch randomization (0.95 - 1.05) so repetitive moves sound alive
-      const randomPitch = 0.95 + Math.random() * 0.10;
-      const startTime = ctx.currentTime;
-
-      try {
-        SOUND_EFFECTS[soundName](startTime, randomPitch);
-        console.log(`[PawnHub Audio] Played sound '${soundName}' at pitch ${randomPitch.toFixed(2)}`);
-      } catch (err) {
-        console.error("[PawnHub Audio] Error playing sound:", err);
-      }
-    },
-
-    getSoundList: () => Object.keys(SOUND_EFFECTS)
+    play: safeWrap(playSynth, "play"),
+    playEvent: safeWrap(playEvent, "playEvent"),
+    playCustomSound: safeWrap(playCustomSound, "playCustomSound"),
+    loadCustomSounds: safeWrap(loadCustomSounds, "loadCustomSounds"),
+    getSoundList: () => Object.keys(SOUND_EFFECTS),
+    getAudioContext: initAudio
   };
 })();
+

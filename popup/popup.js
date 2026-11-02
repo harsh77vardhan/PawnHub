@@ -25,6 +25,7 @@ const PIECE_DEFINITIONS = {
 // In-memory state
 let currentTheme = "default";
 let currentPieces = {};
+let currentRawUploads = {};
 let comedySettings = {
   comedy_enabled: true,
   comedy_jokes: true,
@@ -34,6 +35,23 @@ let comedySettings = {
   joke_size: "30px",
   joke_duration: 3800
 };
+
+// Safe storage access
+function storageGet(keys, callback) {
+  if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(keys, callback);
+  } else {
+    callback({});
+  }
+}
+
+function storageSet(items, callback) {
+  if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+    chrome.storage.local.set(items, callback);
+  } else if (callback) {
+    callback();
+  }
+}
 
 // DOM Elements
 const themeSelect = document.getElementById("theme-select");
@@ -118,7 +136,7 @@ function setupTabs() {
 
 // 3. Load saved settings from chrome.storage.local
 function loadSavedSettings() {
-  chrome.storage.local.get(null, (data) => {
+  storageGet(null, (data) => {
     if (data.pawnhub_theme) {
       currentTheme = data.pawnhub_theme;
       themeSelect.value = currentTheme;
@@ -127,6 +145,10 @@ function loadSavedSettings() {
     if (data.pawnhub_pieces) {
       currentPieces = data.pawnhub_pieces;
       updateAllPreviews();
+    }
+
+    if (data.pawnhub_raw_uploads) {
+      currentRawUploads = data.pawnhub_raw_uploads;
     }
 
     // Comedy settings
@@ -199,8 +221,18 @@ function handleImageUpload(pieceKey, file) {
 
       const optimizedDataUrl = canvas.toDataURL("image/png");
       currentPieces[pieceKey] = optimizedDataUrl;
+      currentRawUploads[pieceKey] = {
+        dataUrl: optimizedDataUrl,
+        zoom: 1.0,
+        offsetX: 0,
+        offsetY: 0,
+        mode: "original"
+      };
 
-      chrome.storage.local.set({ pawnhub_pieces: currentPieces }, () => {
+      storageSet({
+        pawnhub_pieces: currentPieces,
+        pawnhub_raw_uploads: currentRawUploads
+      }, () => {
         updateAllPreviews();
       });
     };
@@ -211,7 +243,12 @@ function handleImageUpload(pieceKey, file) {
 
 function handleClearPiece(pieceKey) {
   delete currentPieces[pieceKey];
-  chrome.storage.local.set({ pawnhub_pieces: currentPieces }, () => {
+  delete currentRawUploads[pieceKey];
+
+  storageSet({
+    pawnhub_pieces: currentPieces,
+    pawnhub_raw_uploads: currentRawUploads
+  }, () => {
     updateAllPreviews();
   });
 }
@@ -219,21 +256,27 @@ function handleClearPiece(pieceKey) {
 function setupEventListeners() {
   themeSelect.addEventListener("change", (e) => {
     currentTheme = e.target.value;
-    chrome.storage.local.set({ pawnhub_theme: currentTheme });
+    storageSet({ pawnhub_theme: currentTheme });
   });
 
   resetAllBtn.addEventListener("click", () => {
     currentPieces = {};
-    chrome.storage.local.set({ pawnhub_pieces: currentPieces }, () => {
+    currentRawUploads = {};
+    storageSet({
+      pawnhub_pieces: currentPieces,
+      pawnhub_raw_uploads: currentRawUploads
+    }, () => {
       updateAllPreviews();
     });
   });
 
   const openFullOptions = () => {
-    if (chrome.runtime.openOptionsPage) {
+    if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.openOptionsPage) {
       chrome.runtime.openOptionsPage();
-    } else {
+    } else if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.getURL) {
       window.open(chrome.runtime.getURL("options/options.html"));
+    } else {
+      window.open("../options/options.html");
     }
   };
 
@@ -242,43 +285,43 @@ function setupEventListeners() {
 
   comedyEnabledToggle.addEventListener("change", (e) => {
     comedySettings.comedy_enabled = e.target.checked;
-    chrome.storage.local.set({ comedy_enabled: comedySettings.comedy_enabled });
+    storageSet({ comedy_enabled: comedySettings.comedy_enabled });
     updateComedyUI();
   });
 
   comedyJokesToggle.addEventListener("change", (e) => {
     comedySettings.comedy_jokes = e.target.checked;
-    chrome.storage.local.set({ comedy_jokes: comedySettings.comedy_jokes });
+    storageSet({ comedy_jokes: comedySettings.comedy_jokes });
   });
 
   comedyEffectsToggle.addEventListener("change", (e) => {
     comedySettings.comedy_effects = e.target.checked;
-    chrome.storage.local.set({ comedy_effects: comedySettings.comedy_effects });
+    storageSet({ comedy_effects: comedySettings.comedy_effects });
   });
 
   comedySoundsToggle.addEventListener("change", (e) => {
     comedySettings.comedy_sounds = e.target.checked;
-    chrome.storage.local.set({ comedy_sounds: comedySettings.comedy_sounds });
+    storageSet({ comedy_sounds: comedySettings.comedy_sounds });
   });
 
   comedyVolumeSlider.addEventListener("input", (e) => {
     const vol = parseInt(e.target.value, 10);
     comedySettings.comedy_volume = vol;
     volumeLabel.textContent = `${vol}%`;
-    chrome.storage.local.set({ comedy_volume: vol });
+    storageSet({ comedy_volume: vol });
   });
 
   jokeSizeSlider.addEventListener("input", (e) => {
     const size = `${e.target.value}px`;
     comedySettings.joke_size = size;
     jokeSizeLabel.textContent = size;
-    chrome.storage.local.set({ joke_size: size });
+    storageSet({ joke_size: size });
   });
 
   jokeDurationSlider.addEventListener("input", (e) => {
     const durationMs = parseInt(e.target.value, 10) * 100;
     comedySettings.joke_duration = durationMs;
     jokeDurationLabel.textContent = `${(durationMs / 1000).toFixed(1)}s`;
-    chrome.storage.local.set({ joke_duration: durationMs });
+    storageSet({ joke_duration: durationMs });
   });
 }

@@ -14,16 +14,16 @@
         <span class="icon">♟️</span>
         <h1>PawnHub Customizer</h1>
       </div>
-      <p class="subtitle">Personalize your chess board and pieces with 12 immersive themes and Comedy Mode.</p>
+      <p class="subtitle">Molded piece silhouettes, 5 premium handcrafted sets, and high-impact Comedy Mode for chess.com.</p>
     </header>
 
     <main class="grid-layout">
-      <!-- Section 1: Interactive Test Lab (Audition Without Playing) -->
+      <!-- Section 1: Interactive Test Lab -->
       <section class="card test-lab-card">
         <div class="card-header-flex">
           <div>
             <h2 class="card-title">🧪 Interactive Test Lab</h2>
-            <p class="card-desc">Click any button to test and preview full-screen animations and synthesized audio live:</p>
+            <p class="card-desc">Click any button to audition animations and synthesized audio live:</p>
           </div>
           <button id="test-random-combo-btn" class="btn-primary-glow">🎲 Play Random Combo</button>
         </div>
@@ -72,37 +72,161 @@
         </div>
       </section>
 
-      <!-- Section 2: 12 Board & Piece Themes -->
+      <!-- Section 2: Piece Sets & Themes -->
       <section class="card">
         <div class="card-header-flex">
           <div>
-            <h2 class="card-title">1. Board & Piece Theme</h2>
-            <p class="card-desc">Choose from 12 immersive themes. Each theme changes the board colors AND introduces matching custom vector pieces:</p>
+            <h2 class="card-title">1. Piece Set & Board Theme</h2>
+            <p class="card-desc">Choose from 5 premium handcrafted piece sets or 12 classic themes:</p>
           </div>
-          <span class="badge">12 Themes</span>
+          <span class="badge">5 Premium Sets</span>
         </div>
         <select id="theme-select" class="theme-dropdown">
           <option value="default">Original (chess.com default)</option>
-          <option value="candy">🍭 Candy Land</option>
-          <option value="lava">🌋 Lava Volcano</option>
-          <option value="space">🌌 Deep Space</option>
-          <option value="haunted">🏚️ Haunted Mansion</option>
-          <option value="underwater">🌊 Underwater Reef</option>
-          <option value="arcade">🕹️ Retro Arcade</option>
-          <option value="desert">🏜️ Desert Pyramids</option>
-          <option value="jungle">🌴 Wild Jungle</option>
-          <option value="ice">❄️ Ice Kingdom</option>
-          <option value="cyberpunk">⚡ Cyberpunk Neon</option>
-          <option value="medieval">🏰 Medieval Castle</option>
-          <option value="pirate">🏴‍☠️ Pirate Seas</option>
+          <optgroup label="🌟 5 Premium Handcrafted Sets">
+            <option value="crystal">💎 Crystal Glass</option>
+            <option value="neon">⚡ Neon Wireframe</option>
+            <option value="gold_obsidian">👑 Gold & Obsidian</option>
+            <option value="paper_cut">✂️ Paper Cut</option>
+            <option value="monsters">👾 Friendly Monsters</option>
+          </optgroup>
+          <optgroup label="🎨 12 Classic Themes">
+            <option value="candy">🍭 Candy Land</option>
+            <option value="lava">🌋 Lava Volcano</option>
+            <option value="space">🌌 Deep Space</option>
+            <option value="haunted">🏚️ Haunted Mansion</option>
+            <option value="underwater">🌊 Underwater Reef</option>
+            <option value="arcade">🕹️ Retro Arcade</option>
+            <option value="desert">🏜️ Desert Pyramids</option>
+            <option value="jungle">🌴 Wild Jungle</option>
+            <option value="ice">❄️ Ice Kingdom</option>
+            <option value="cyberpunk">⚡ Cyberpunk Neon</option>
+            <option value="medieval">🏰 Medieval Castle</option>
+            <option value="pirate">🏴‍☠️ Pirate Seas</option>
+          </optgroup>
         </select>
       </section>
 
-      <!-- Section 3: Comedy Mode Settings -->
+      <!-- Section 3: Molded Silhouette Studio & Crop Tool -->
+      <section class="card studio-card">
+        <div class="card-header-flex">
+          <div>
+            <h2 class="card-title">2. 🎨 Molded Silhouette Studio</h2>
+            <p class="card-desc">Molds your uploaded photos into handcrafted piece silhouettes with side rims and drag-to-position framing.</p>
+          </div>
+          <div id="storage-status" class="storage-badge">Storage: <span id="storage-mb">0.0 MB</span> / 10 MB</div>
+        </div>
+
+        <div id="storage-warning" class="storage-warning" style="display: none;">
+          ⚠️ Warning: Local storage is nearly full (>7MB). Reset some pieces to free up space.
+        </div>
+
+        <!-- Studio Controls Grid -->
+        <div class="studio-layout">
+          <!-- Left: Interactive Canvas Viewport -->
+          <div class="canvas-container">
+            <div class="canvas-wrapper">
+              <canvas id="crop-canvas" width="256" height="256"></canvas>
+              <div class="canvas-hint">Drag photo to position inside silhouette</div>
+            </div>
+
+            <!-- Zoom & Pan Controls -->
+            <div class="crop-controls">
+              <div class="zoom-row">
+                <span class="sub-label">Zoom (<span id="zoom-val">100%</span>)</span>
+                <input type="range" id="crop-zoom" min="50" max="300" value="100">
+              </div>
+              <button id="btn-reset-crop" class="btn-subtle">🔄 Center Photo</button>
+            </div>
+          </div>
+
+          <!-- Right: Setup & Batch Controls -->
+          <div class="studio-settings">
+            <!-- Piece & Color Picker -->
+            <div class="setting-row">
+              <label class="sub-label">Target Piece</label>
+              <select id="studio-piece-select" class="theme-dropdown">
+                <optgroup label="White Pieces">
+                  <option value="wp">♙ White Pawn</option>
+                  <option value="wn">♘ White Knight</option>
+                  <option value="wb">♗ White Bishop</option>
+                  <option value="wr">♖ White Rook</option>
+                  <option value="wq">♕ White Queen</option>
+                  <option value="wk">♔ White King</option>
+                </optgroup>
+                <optgroup label="Black Pieces">
+                  <option value="bp">♟ Black Pawn</option>
+                  <option value="bn">♞ Black Knight</option>
+                  <option value="bb">♝ Black Bishop</option>
+                  <option value="br">♜ Black Rook</option>
+                  <option value="bq">♛ Black Queen</option>
+                  <option value="bk">♚ Black King</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Shape Mode Radios -->
+            <div class="setting-row">
+              <label class="sub-label">Shape Masking Mode</label>
+              <div class="mode-options">
+                <label class="mode-radio">
+                  <input type="radio" name="shape-mode" value="silhouette" checked>
+                  <span>🛡️ Full Silhouette</span>
+                </label>
+                <label class="mode-radio">
+                  <input type="radio" name="shape-mode" value="badge">
+                  <span>🏷️ Silhouette + Letter Badge</span>
+                </label>
+                <label class="mode-radio">
+                  <input type="radio" name="shape-mode" value="original">
+                  <span>🖼️ Original Photo (Unclipped)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Image File Chooser -->
+            <div class="setting-row">
+              <label class="btn-upload-prominent">
+                📁 Choose Image for This Piece
+                <input type="file" id="studio-file-input" accept="image/*" style="display: none;">
+              </label>
+            </div>
+
+            <!-- Save & Batch Apply Buttons -->
+            <div class="studio-actions">
+              <button id="btn-save-piece" class="btn-save-main">💾 Save This Piece</button>
+              <div class="batch-buttons">
+                <button id="btn-apply-all-white" class="btn-batch white-side">🌟 Apply Photo to All White Pieces</button>
+                <button id="btn-apply-all-black" class="btn-batch black-side">🌟 Apply Photo to All Black Pieces</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Pieces Grid Overview -->
+        <div class="active-pieces-overview">
+          <div class="card-header-flex">
+            <span class="test-group-title">Active Custom Pieces</span>
+            <button id="reset-all-pieces-btn" class="btn-danger-subtle">Reset All Custom Uploads</button>
+          </div>
+
+          <!-- Color Tabs -->
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="white">White Pieces</button>
+            <button class="tab-btn" data-tab="black">Black Pieces</button>
+          </div>
+
+          <!-- Pieces Containers -->
+          <div id="white-pieces-list" class="piece-grid tab-content active"></div>
+          <div id="black-pieces-list" class="piece-grid tab-content"></div>
+        </div>
+      </section>
+
+      <!-- Section 4: Comedy Mode Settings -->
       <section class="card">
         <div class="card-header-flex">
           <div>
-            <h2 class="card-title">2. 🎭 Comedy Mode</h2>
+            <h2 class="card-title">3. 🎭 Comedy Mode</h2>
             <p class="card-desc">React to in-game captures, checks, castling, and promotions with jokes, sound fx, and animations.</p>
           </div>
           <label class="toggle-switch">
@@ -118,6 +242,16 @@
               <input type="checkbox" id="comedy-jokes-toggle">
               <span class="slider"></span>
             </label>
+          </div>
+
+          <div class="slider-row">
+            <span class="sub-label">Joke Size (<span id="joke-size-label">30px</span>)</span>
+            <input type="range" id="joke-size-slider" min="24" max="42" value="30">
+          </div>
+
+          <div class="slider-row">
+            <span class="sub-label">Joke Duration (<span id="joke-duration-label">3.8s</span>)</span>
+            <input type="range" id="joke-duration-slider" min="20" max="60" value="38">
           </div>
 
           <div class="switch-row">
@@ -143,25 +277,42 @@
         </div>
       </section>
 
-      <!-- Section 4: Piece Replacements -->
-      <section class="card">
+      <!-- Section 4: Custom Sound Packs -->
+      <section class="card soundpack-card">
         <div class="card-header-flex">
           <div>
-            <h2 class="card-title">3. Custom Piece Image Overrides</h2>
-            <p class="card-desc">Upload your own images (PNG/JPG) for any piece. Custom uploads override the theme's piece on that slot.</p>
+            <h2 class="card-title">4. 🎧 Custom Sound Packs</h2>
+            <p class="card-desc">Assign your own audio or extract sound from video files for 12 in-game chess events. Each slot supports multiple sounds picked at random.</p>
           </div>
-          <button id="reset-all-pieces-btn" class="btn-danger">Reset All Uploads</button>
+          <label class="toggle-switch">
+            <input type="checkbox" id="custom-sounds-enabled-toggle" checked>
+            <span class="slider"></span>
+          </label>
         </div>
 
-        <!-- Color Tabs -->
-        <div class="tab-bar">
-          <button class="tab-btn active" data-tab="white">White Pieces</button>
-          <button class="tab-btn" data-tab="black">Black Pieces</button>
+        <div class="soundpack-toolbar">
+          <div class="soundpack-toggles">
+            <label class="checkbox-label">
+              <input type="checkbox" id="mute-chesscom-toggle">
+              <span>🔇 Mute chess.com's default sounds when custom sounds play</span>
+            </label>
+          </div>
+          <div class="soundpack-actions">
+            <button id="btn-export-sounds" class="btn-subtle">💾 Export Soundpack</button>
+            <label id="btn-import-sounds" class="btn-subtle" style="cursor: pointer;">
+              📂 Import Soundpack
+              <input type="file" id="soundpack-file-input" accept=".json" style="display: none;">
+            </label>
+            <button id="btn-reset-sounds" class="btn-danger-subtle">🗑️ Reset All Custom Sounds</button>
+          </div>
         </div>
 
-        <!-- Pieces Containers -->
-        <div id="white-pieces-list" class="piece-grid tab-content active"></div>
-        <div id="black-pieces-list" class="piece-grid tab-content"></div>
+        <p class="privacy-note">🔒 All uploaded audio and video files are trimmed, converted to mono 22.05 kHz WAV, and stored locally on this device only.</p>
+
+        <!-- 12 Event Slots Grid -->
+        <div id="sound-slots-grid" class="sound-slots-grid">
+          <!-- Dynamically populated by options.js -->
+        </div>
       </section>
     </main>
 
@@ -170,6 +321,84 @@
     </footer>
   </div>
 
+  <!-- Interactive Waveform Audio Trimmer Modal -->
+  <div id="audio-trim-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">✂️ Audio & Video Sound Trimmer</h3>
+          <p id="trim-target-event" class="modal-subtitle">Assigning sound to: <strong>Capture (By Me)</strong></p>
+        </div>
+        <button id="btn-close-trimmer" class="modal-close-btn" title="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="waveform-container">
+          <canvas id="trim-waveform-canvas" width="600" height="130"></canvas>
+          <div class="waveform-handles-hint">Drag the left & right handles to trim your sound (10s max).</div>
+        </div>
+
+        <div class="trim-stats-row">
+          <div class="stat-badge">Start: <span id="trim-start-time">0.00s</span></div>
+          <div class="stat-badge">End: <span id="trim-end-time">2.50s</span></div>
+          <div class="stat-badge highlight">Duration: <span id="trim-duration">2.50s</span> (Max 10s)</div>
+          <div class="stat-badge">Estimated Size: <span id="trim-est-size">~110 KB</span></div>
+        </div>
+
+        <div class="trim-controls-row">
+          <div class="playback-btns">
+            <button id="btn-trim-play" class="btn-primary-small">▶ Play Selection</button>
+            <button id="btn-trim-stop" class="btn-subtle">⏹ Stop</button>
+          </div>
+          <div class="trim-options">
+            <label class="checkbox-label">
+              <input type="checkbox" id="trim-fade-toggle" checked>
+              <span>Fade In/Out (Anti-Click)</span>
+            </label>
+            <div class="trim-volume-row">
+              <span>Volume (<span id="trim-volume-val">100%</span>)</span>
+              <input type="range" id="trim-volume-slider" min="20" max="200" value="100">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="btn-trim-cancel" class="btn-subtle">Cancel</button>
+        <button id="btn-trim-save" class="btn-save-main">💾 Compress & Save to Slot</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Copyright Warning Modal -->
+  <div id="export-disclaimer-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card small-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">⚠️ Copyright Notice</h3>
+        <button id="btn-close-export-disclaimer" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: #cbd5e1; line-height: 1.6;">
+          Before exporting and sharing your sound setup, please ensure you own the rights or have permission to distribute all audio files included in this soundpack.
+        </p>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 10px;">
+          Do not share copyrighted music, celebrity voices, or protected sound effects without authorization.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel-export" class="btn-subtle">Cancel</button>
+        <button id="btn-confirm-export" class="btn-primary-small">I Understand, Download Pack</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../content/masking.js"></script>
+  <script src="../content/pieces/crystal.js"></script>
+  <script src="../content/pieces/neon.js"></script>
+  <script src="../content/pieces/gold_obsidian.js"></script>
+  <script src="../content/pieces/paper_cut.js"></script>
+  <script src="../content/pieces/monsters.js"></script>
+  <script src="../content/pieces/index.js"></script>
   <script src="../content/themes.js"></script>
   <script src="../content/audio.js"></script>
   <script src="../content/effects.js"></script>

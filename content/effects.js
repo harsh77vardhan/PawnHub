@@ -170,12 +170,20 @@
     banner.style.left = `${left}px`;
     banner.style.top = `${top}px`;
     banner.style.fontSize = fontSize;
-    banner.innerHTML = `
-      <div class="joke-bubble">
-        <span class="joke-icon">${icon}</span>
-        <span class="joke-text">${text}</span>
-      </div>
-    `;
+    const bubble = document.createElement("div");
+    bubble.className = "joke-bubble";
+
+    const iconSpan = document.createElement("span");
+    iconSpan.className = "joke-icon";
+    iconSpan.textContent = icon;
+
+    const textSpan = document.createElement("span");
+    textSpan.className = "joke-text";
+    textSpan.textContent = text;
+
+    bubble.appendChild(iconSpan);
+    bubble.appendChild(textSpan);
+    banner.appendChild(bubble);
 
     container.appendChild(banner);
 
@@ -217,7 +225,6 @@
     return chosen;
   }
 
-  // Signature Sequence: Ram, Bonk, Launch & RIP
   function playCaptureSequence({
     attackerStyle,
     victimStyle,
@@ -225,7 +232,8 @@
     toRect,
     realAttackerEl,
     isQueenCapture = false,
-    isRookCapture = false
+    isRookCapture = false,
+    eventKey = null
   }) {
     const container = getOverlayContainer();
     const isHighValue = isQueenCapture || isRookCapture;
@@ -237,6 +245,8 @@
     const distance = Math.hypot(dx, dy);
     const impactX = toRect.left + toRect.width / 2;
     const impactY = toRect.top + toRect.height / 2;
+
+    const finalEventKey = eventKey || (isQueenCapture ? "queen_capture" : "capture_mine");
 
     // A. Temporarily hide real attacker piece so it doesn't appear doubled
     if (realAttackerEl) realAttackerEl.style.opacity = "0";
@@ -276,10 +286,10 @@
       attackerGhost.remove();
       if (realAttackerEl) realAttackerEl.style.opacity = "1";
 
-      // 2. Play Impact Audio & Effects
+      // 2. Play Impact Audio & Effects (Custom Sound priority, fallback to comedy)
       if (window.PawnHubAudio) {
-        window.PawnHubAudio.play(variant.sound);
-        if (isQueenCapture) setTimeout(() => window.PawnHubAudio.play("boing"), 150);
+        const customPlayed = window.PawnHubAudio.playEvent(finalEventKey, variant.sound);
+        if (!customPlayed && isQueenCapture) setTimeout(() => window.PawnHubAudio.play("boing"), 150);
       }
 
       spawnComicBurst(variant.text, impactX, impactY, isQueenCapture ? 1.5 : 1.15, variant.color);
@@ -335,7 +345,7 @@
   }
 
   // 9. Normal Move Animation (Bounce / Hop arc / Dust trail)
-  function playNormalMoveAnimation(fromRect, toRect, pieceEl) {
+  function playNormalMoveAnimation(fromRect, toRect, pieceEl, options = {}) {
     if (!fromRect || !toRect || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const container = getOverlayContainer();
 
@@ -354,7 +364,7 @@
     container.appendChild(ring);
     setTimeout(() => ring.remove(), 500);
 
-    if (window.PawnHubAudio) window.PawnHubAudio.play("hop");
+    if (window.PawnHubAudio) window.PawnHubAudio.playEvent(options?.eventKey || "move_mine", "hop");
   }
 
   // 10. Castling Dance Swap
@@ -366,8 +376,8 @@
     spawnComicBurst("ROYAL SWAP!", centerX, centerY, 1.25, "cyan");
     emitParticles(centerX, centerY, 30, ["#fef08a", "#38bdf8", "#ec4899", "#ffffff"]);
     if (window.PawnHubAudio) {
-      window.PawnHubAudio.play("party_horn");
-      setTimeout(() => window.PawnHubAudio.play("ding"), 200);
+      const customPlayed = window.PawnHubAudio.playEvent("castle", "party_horn");
+      if (!customPlayed) setTimeout(() => window.PawnHubAudio.play("ding"), 200);
     }
   }
 
@@ -392,13 +402,13 @@
     }
 
     if (window.PawnHubAudio) {
-      window.PawnHubAudio.play("alarm");
-      setTimeout(() => window.PawnHubAudio.play("drip"), 250);
+      const customPlayed = window.PawnHubAudio.playEvent("check", "alarm");
+      if (!customPlayed) setTimeout(() => window.PawnHubAudio.play("drip"), 250);
     }
   }
 
   // 12. Checkmate Confetti & Victory Banner
-  function playCheckmateAnimation() {
+  function playCheckmateAnimation(eventKey = "win") {
     const board = document.querySelector("wc-chess-board, .board");
     let cx = window.innerWidth / 2;
     let cy = window.innerHeight / 2;
@@ -408,14 +418,14 @@
       cy = bRect.top + bRect.height / 2;
     }
 
-    // Huge celebration explosion
+    // Celebration explosion
     emitParticles(cx, cy, 60, ["#f59e0b", "#ef4444", "#38bdf8", "#ec4899", "#10b981", "#ffffff"]);
-    spawnComicBurst("CHECKMATE!", cx, cy, 1.6, "yellow");
+    spawnComicBurst(eventKey === "lose" ? "DEFEAT 💀" : (eventKey === "draw" ? "STALEMATE 🤝" : "CHECKMATE! 🏆"), cx, cy, 1.6, eventKey === "lose" ? "cyan" : "yellow");
     triggerScreenShake("heavy");
 
     if (window.PawnHubAudio) {
-      window.PawnHubAudio.play("victory");
-      setTimeout(() => window.PawnHubAudio.play("applause"), 300);
+      const customPlayed = window.PawnHubAudio.playEvent(eventKey, eventKey === "lose" ? "sad_trombone" : (eventKey === "draw" ? "ding" : "victory"));
+      if (!customPlayed && eventKey === "win") setTimeout(() => window.PawnHubAudio.play("applause"), 300);
     }
   }
 
@@ -425,21 +435,31 @@
     const cy = rect.top + rect.height / 2;
     spawnComicBurst("PROMOTED! 👑", cx, cy, 1.3, "yellow");
     emitParticles(cx, cy, 32, ["#fef08a", "#f59e0b", "#ec4899", "#ffffff"]);
-    if (window.PawnHubAudio) window.PawnHubAudio.play("level_up");
+    if (window.PawnHubAudio) window.PawnHubAudio.playEvent("promotion", "level_up");
+  }
+
+  function safeWrap(fn, name) {
+    return function (...args) {
+      try {
+        return fn(...args);
+      } catch (err) {
+        console.warn(`[PawnHub Effects] Safe guard caught error in ${name}:`, err.message);
+      }
+    };
   }
 
   // Public Effects API
   window.PawnHubEffects = {
-    showJoke: showBigJokeBanner,
-    playCapture: playCaptureSequence,
-    playNormalMove: playNormalMoveAnimation,
-    playCastling: playCastlingAnimation,
-    playCheck: playCheckAnimation,
-    playCheckmate: playCheckmateAnimation,
-    playPromotion: playPromotionAnimation,
-    burst: spawnComicBurst,
-    shake: triggerScreenShake,
-    particles: emitParticles,
+    showJoke: safeWrap(showBigJokeBanner, "showJoke"),
+    playCapture: safeWrap(playCaptureSequence, "playCapture"),
+    playNormalMove: safeWrap(playNormalMoveAnimation, "playNormalMove"),
+    playCastling: safeWrap(playCastlingAnimation, "playCastling"),
+    playCheck: safeWrap(playCheckAnimation, "playCheck"),
+    playCheckmate: safeWrap(playCheckmateAnimation, "playCheckmate"),
+    playPromotion: safeWrap(playPromotionAnimation, "playPromotion"),
+    burst: safeWrap(spawnComicBurst, "burst"),
+    shake: safeWrap(triggerScreenShake, "shake"),
+    particles: safeWrap(emitParticles, "particles"),
     getContainer: getOverlayContainer
   };
 })();
