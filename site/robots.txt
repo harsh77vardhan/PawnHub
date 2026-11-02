@@ -1,9 +1,9 @@
 # PawnHub Robots.txt
-# https://pawnhub.vercel.app/
+# https://pawnhub-pink.vercel.app/
 
 User-agent: *
 Allow: /
 
 # Sitemap Index
-Sitemap: https://pawnhub.vercel.app/sitemap.xml
-Host: https://pawnhub.vercel.app
+Sitemap: https://pawnhub-pink.vercel.app/sitemap.xml
+Host: https://pawnhub-pink.vercel.app
