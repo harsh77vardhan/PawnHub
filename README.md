@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="icons/icon128.png" width="96" height="96" alt="PawnHub Logo" style="border-radius: 24px; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);">
+  <img src="icons/icon128.png" width="96" height="96" alt="PawnHub Logo" style="border-radius: 24px; box-shadow: 0 4px 20px rgba(28, 26, 23, 0.12);">
   <h1>PawnHub</h1>
   <p><strong>Custom themes, molded piece shapes, funny sound effects, and animations for Chess.com.</strong></p>
 

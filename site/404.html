@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404: Square Not Found — PawnHub</title>
+  <meta name="description" content="This square does not exist on the board. Return to the PawnHub homepage.">
+  <link rel="canonical" href="https://pawnhub.vercel.app/404.html">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#F6F2EA" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)">
+
+  <link rel="preload" href="/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/inter-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="error-page">
+  <header class="site-header" role="banner">
+    <div class="header-container">
+      <a href="/" class="brand-link" aria-label="PawnHub Home">
+        <svg class="brand-pawn-icon" viewBox="0 0 100 100" aria-hidden="true" width="24" height="24">
+          <circle cx="50" cy="28" r="18" fill="var(--accent)"/>
+          <path d="M 36 46 C 38 40, 62 40, 64 46 C 62 62, 70 74, 74 84 L 26 84 C 30 74, 38 62, 36 46 Z" fill="var(--text-primary)"/>
+          <rect x="22" y="84" width="56" height="10" rx="3" fill="var(--text-primary)"/>
+        </svg>
+        <span class="brand-text">Pawn<span class="brand-accent">Hub</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Navigation">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/privacy.html" class="nav-link">Privacy</a>
+        <a href="https://github.com/harsh/pawnhub" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="error-container" role="main">
+    <div class="error-card">
+      <div class="section-label">404 Error</div>
+      <h1>Square not found.</h1>
+      <p class="error-desc">
+        The coordinate you requested does not exist on this chessboard. The link may be broken, or the piece was captured and removed from play.
+      </p>
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">Return to Homepage →</a>
+        <a href="https://github.com/harsh/pawnhub" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="brand-text">Pawn<span class="brand-accent">Hub</span></span>
+        <p class="footer-tagline">An open-source chess customization extension.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="https://github.com/harsh/pawnhub" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+    <div class="footer-disclaimer">
+      <p>
+        PawnHub is an independent open-source project and is not affiliated with, endorsed by, or sponsored by Chess.com or its affiliates.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

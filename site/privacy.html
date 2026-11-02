@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — PawnHub</title>
+  <meta name="description" content="PawnHub privacy policy. 100% local-first chess extension. Zero telemetry, zero analytics, zero data collection.">
+  <link rel="canonical" href="https://pawnhub.vercel.app/privacy.html">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#F6F2EA" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#161412" media="(prefers-color-scheme: dark)">
+
+  <link rel="preload" href="/fonts/instrument-serif-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/inter-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="privacy-page">
+  <header class="site-header" role="banner">
+    <div class="header-container">
+      <a href="/" class="brand-link" aria-label="PawnHub Home">
+        <svg class="brand-pawn-icon" viewBox="0 0 100 100" aria-hidden="true" width="24" height="24">
+          <circle cx="50" cy="28" r="18" fill="var(--accent)"/>
+          <path d="M 36 46 C 38 40, 62 40, 64 46 C 62 62, 70 74, 74 84 L 26 84 C 30 74, 38 62, 36 46 Z" fill="var(--text-primary)"/>
+          <rect x="22" y="84" width="56" height="10" rx="3" fill="var(--text-primary)"/>
+        </svg>
+        <span class="brand-text">Pawn<span class="brand-accent">Hub</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Navigation">
+        <a href="/" class="nav-link">← Back to Home</a>
+        <a href="https://github.com/harsh/pawnhub" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="legal-container" role="main">
+    <article class="legal-card">
+      <div class="legal-header">
+        <div class="section-label">07 / Privacy Commitment</div>
+        <h1>Privacy Policy</h1>
+        <p class="legal-updated"><strong>Last Updated:</strong> November 2, 2026</p>
+      </div>
+
+      <div class="legal-content">
+        <p class="section-desc" style="margin-bottom: 2rem;">
+          PawnHub is an open-source, cosmetic-only browser extension for Chess.com. We believe that privacy is a fundamental human right. This Privacy Policy details our strict commitment to zero data collection.
+        </p>
+
+        <section class="legal-section">
+          <h2>1. Zero Data Collection</h2>
+          <ul>
+            <li><strong>No Personal Information:</strong> PawnHub does not collect, track, log, transmit, or sell any personal data, identifiers, IP addresses, browsing history, or gameplay data.</li>
+            <li><strong>No Analytics or Trackers:</strong> PawnHub contains zero third-party telemetry, analytics services, cookies, tracking pixels, or external scripts.</li>
+            <li><strong>No External Network Traffic:</strong> PawnHub makes zero outbound network requests. All functionality executes strictly inside your local browser environment.</li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>2. Local Storage &amp; User Uploads</h2>
+          <ul>
+            <li><strong>Device-Only Storage:</strong> All user settings, chosen themes, uploaded piece photos, and custom audio files are saved exclusively in your browser's local sandbox using the <code>chrome.storage.local</code> API.</li>
+            <li><strong>Uploaded Content Remains Private:</strong> Any images or video/audio clips you upload for piece molding or sound effects are processed entirely on your computer via HTML5 Canvas and the Web Audio API. They never leave your device and are never transmitted to any cloud server or third party.</li>
+          </ul>
+        </section>
+
+        <section class="legal-section">
+          <h2>3. Browser Extension Permissions</h2>
+          <p>When running as a browser extension, PawnHub requests only the permissions strictly required to function locally:</p>
+          <div class="table-responsive">
+            <table class="legal-table">
+              <thead>
+                <tr>
+                  <th scope="col">Permission</th>
+                  <th scope="col">Purpose &amp; Technical Justification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>storage</code></td>
+                  <td>Required to save user preferences, selected board themes, comedy toggles, custom piece cutouts, and sound assignments locally on the device.</td>
+                </tr>
+                <tr>
+                  <td><code>unlimitedStorage</code></td>
+                  <td>Required to store user-uploaded custom piece images and high-fidelity sound clips locally without hitting the default 5MB storage quota.</td>
+                </tr>
+                <tr>
+                  <td><code>https://www.chess.com/*</code><br><code>https://chess.com/*</code></td>
+                  <td>Required to detect chessboard DOM elements on Chess.com pages in order to apply cosmetic styles, piece replacements, and visual/audio reactions.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="legal-section">
+          <h2>4. Fair Play &amp; Compliance</h2>
+          <p>
+            PawnHub operates strictly as a client-side visual overlay. It does not interface with chess engines, analyze board positions, calculate moves, or provide gameplay recommendations. It complies fully with Chess.com's fair play standards.
+          </p>
+        </section>
+
+        <section class="legal-section">
+          <h2>5. Open Source Verification</h2>
+          <p>
+            Because PawnHub is licensed under the MIT License, our entire codebase is open for public audit. You can inspect every line of code on <a href="https://github.com/harsh/pawnhub" target="_blank" rel="noopener noreferrer" style="color: var(--accent); text-decoration: underline;">GitHub</a>.
+          </p>
+        </section>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="brand-text">Pawn<span class="brand-accent">Hub</span></span>
+        <p class="footer-tagline">100% Free, Local-First Chess Customization.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="https://github.com/harsh/pawnhub" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+    <div class="footer-disclaimer">
+      <p>
+        PawnHub is an independent open-source project and is not affiliated with, endorsed by, or sponsored by Chess.com or its affiliates.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
