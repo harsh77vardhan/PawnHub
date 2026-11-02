@@ -195,6 +195,13 @@ p {
   position: relative;
 }
 
+#features,
+#privacy,
+#faq {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 650px;
+}
+
 .section-divider {
   border: 0;
   border-top: 1px solid var(--border-color);

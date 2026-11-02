@@ -1129,21 +1129,24 @@
   // ========================================================================
   const particles = [];
   let animFrameId = null;
+  let effectsCanvas = null;
+  let effectsCanvasCtx = null;
 
   function initCanvas() {
-    const canvas = document.getElementById("effectsCanvas");
-    if (!canvas) return;
-    canvas.width = 520;
-    canvas.height = 520;
+    effectsCanvas = document.getElementById("effectsCanvas");
+    if (!effectsCanvas) return;
+    effectsCanvas.width = 520;
+    effectsCanvas.height = 520;
+    effectsCanvasCtx = effectsCanvas.getContext("2d");
   }
 
   function spawnParticles(xPct, yPct, type, maxCount) {
     if (reduceEffects) return;
-    const canvas = document.getElementById("effectsCanvas");
-    if (!canvas) return;
+    if (!effectsCanvas) initCanvas();
+    if (!effectsCanvas) return;
 
-    const cx = (xPct / 100) * canvas.width;
-    const cy = (yPct / 100) * canvas.height;
+    const cx = (xPct / 100) * effectsCanvas.width;
+    const cy = (yPct / 100) * effectsCanvas.height;
 
     const chaosMultiplier = 0.5 + chaosLevel * 0.25;
     const count = Math.min(50 - particles.length, Math.round(maxCount * chaosMultiplier));
@@ -1170,11 +1173,11 @@
 
   function spawnDustPuff(xPct, yPct) {
     if (reduceEffects) return;
-    const canvas = document.getElementById("effectsCanvas");
-    if (!canvas) return;
+    if (!effectsCanvas) initCanvas();
+    if (!effectsCanvas) return;
 
-    const cx = (xPct / 100) * canvas.width;
-    const cy = (yPct / 100) * canvas.height + 15;
+    const cx = (xPct / 100) * effectsCanvas.width;
+    const cy = (yPct / 100) * effectsCanvas.height + 15;
 
     for (let i = 0; i < 8; i++) {
       const angle = (Math.PI * 0.8) + (Math.random() * Math.PI * 1.4);
@@ -1197,15 +1200,15 @@
 
   function spawnConfettiShower(count = 45) {
     if (reduceEffects) return;
-    const canvas = document.getElementById("effectsCanvas");
-    if (!canvas) return;
+    if (!effectsCanvas) initCanvas();
+    if (!effectsCanvas) return;
 
     const colors = ["#ef4444", "#38bdf8", "#f59e0b", "#10b981", "#a855f7", "#ffffff"];
     const actualCount = Math.min(50 - particles.length, count);
 
     for (let i = 0; i < actualCount; i++) {
       particles.push({
-        x: Math.random() * canvas.width,
+        x: Math.random() * effectsCanvas.width,
         y: -10 - Math.random() * 40,
         vx: (Math.random() - 0.5) * 4,
         vy: 2 + Math.random() * 4,
@@ -1222,10 +1225,8 @@
   }
 
   function updateParticles() {
-    const canvas = document.getElementById("effectsCanvas");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!effectsCanvasCtx || !effectsCanvas) return;
+    effectsCanvasCtx.clearRect(0, 0, effectsCanvas.width, effectsCanvas.height);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
@@ -1239,19 +1240,18 @@
         continue;
       }
 
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.life);
-      ctx.fillStyle = p.color;
+      effectsCanvasCtx.globalAlpha = Math.max(0, p.life);
+      effectsCanvasCtx.fillStyle = p.color;
 
       if (p.isRect) {
-        ctx.fillRect(p.x, p.y, p.size, p.size * 0.6);
+        effectsCanvasCtx.fillRect(p.x, p.y, p.size, p.size * 0.6);
       } else {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
-        ctx.fill();
+        effectsCanvasCtx.beginPath();
+        effectsCanvasCtx.arc(p.x, p.y, p.size / 2, 0, Math.PI * 2);
+        effectsCanvasCtx.fill();
       }
-      ctx.restore();
     }
+    effectsCanvasCtx.globalAlpha = 1.0;
 
     if (particles.length > 0) {
       animFrameId = requestAnimationFrame(updateParticles);
@@ -1486,828 +1486,13 @@
     });
   }
 
-  // ========================================================================
-  // 14. Gamification Layer: Rail, Discoveries, Bonk Rush & Easter Eggs
-  // ========================================================================
-  const inMemoryStorage = {};
-
-  function safeStorageGet(key, fallback = null) {
-    try {
-      if (typeof window !== "undefined" && window.localStorage) {
-        const val = window.localStorage.getItem(key);
-        return val !== null ? val : fallback;
-      }
-    } catch (e) {
-      // Storage blocked or quota exceeded
-    }
-    return key in inMemoryStorage ? inMemoryStorage[key] : fallback;
-  }
-
-  function safeStorageSet(key, value) {
-    try {
-      if (typeof window !== "undefined" && window.localStorage) {
-        window.localStorage.setItem(key, String(value));
-      }
-    } catch (e) {
-      // Storage blocked
-    }
-    inMemoryStorage[key] = String(value);
-  }
-
-  function safeStorageRemove(key) {
-    try {
-      if (typeof window !== "undefined" && window.localStorage) {
-        window.localStorage.removeItem(key);
-      }
-    } catch (e) {
-      // Storage blocked
-    }
-    delete inMemoryStorage[key];
-  }
-
-  const DISCOVERIES = [
-    {
-      id: "first_capture",
-      title: "First Capture",
-      hint: "Take any opposing piece on the demo board.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`
-    },
-    {
-      id: "five_reactions",
-      title: "Curtain Call",
-      hint: "Sample all five reaction buttons in the laboratory.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/><path d="M9 9h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>`
-    },
-    {
-      id: "all_palettes",
-      title: "Color Theorist",
-      hint: "Test each of the original 8 board palettes.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.5" fill="currentColor"/><circle cx="12" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="10" r="1.5" fill="currentColor"/><circle cx="14" cy="15" r="1.5" fill="currentColor"/></svg>`
-    },
-    {
-      id: "hype_3x",
-      title: "High Voltage",
-      hint: "Build your hype combo to 3x or higher.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`
-    },
-    {
-      id: "bonk_rush",
-      title: "Speed Chess",
-      hint: "Complete a full 20-second Bonk Rush round.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M10 2h4"/><path d="M12 2v3"/></svg>`
-    },
-    {
-      id: "pawn_promotion",
-      title: "Eighth Rank",
-      hint: "March a pawn to the opposing edge on the demo board.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><path d="M4 18h16"/><path d="M5 18l2-9 5 4 5-4 2 9"/><circle cx="5" cy="8" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="8" r="1.5"/></svg>`
-    },
-    {
-      id: "read_faq",
-      title: "Inquisitive",
-      hint: "Inspect an answer in the FAQ accordion.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
-    },
-    {
-      id: "privacy_inspected",
-      title: "Local Custodian",
-      hint: "Review the local privacy guarantees section.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
-    },
-    {
-      id: "easter_egg",
-      title: "Secret Passage",
-      hint: "Uncover any one hidden surprise on the page.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
-    },
-    {
-      id: "footer_reached",
-      title: "End of the Board",
-      hint: "Scroll all the way down to the colophon.",
-      icon: `<svg class="discovery-icon-svg" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`
-    }
-  ];
-
-  let unlockedDiscoveries = new Set();
-  const testedPalettes = new Set();
-  const testedReactions = new Set();
-  const toastQueue = [];
-  let isToastShowing = false;
-  let isPlayModeOn = true;
-
-  function loadGamificationState() {
-    const raw = safeStorageGet("pawnhub_discoveries", "");
-    if (raw) {
-      raw.split(",").forEach(id => {
-        const clean = id.trim();
-        if (clean) unlockedDiscoveries.add(clean);
-      });
-    }
-    updateCollectionUI();
-    checkBonusPalettes();
-  }
-
-  function unlockDiscovery(id) {
-    if (unlockedDiscoveries.has(id)) return;
-    const disc = DISCOVERIES.find(d => d.id === id);
-    if (!disc) return;
-
-    unlockedDiscoveries.add(id);
-    safeStorageSet("pawnhub_discoveries", Array.from(unlockedDiscoveries).join(","));
-
-    updateCollectionUI();
-    checkBonusPalettes();
-
-    if (isPlayModeOn) {
-      queueToast(`Collected: ${disc.title}`);
-    }
-  }
-
-  function queueToast(msg) {
-    if (!isPlayModeOn) return;
-    toastQueue.push(msg);
-    processToastQueue();
-  }
-
-  function processToastQueue() {
-    if (isToastShowing || toastQueue.length === 0) return;
-    const toastEl = document.getElementById("discoveryToast");
-    if (!toastEl) return;
-
-    isToastShowing = true;
-    const nextMsg = toastQueue.shift();
-    toastEl.textContent = nextMsg;
-    toastEl.classList.add("visible");
-
-    setTimeout(() => {
-      toastEl.classList.remove("visible");
-      setTimeout(() => {
-        isToastShowing = false;
-        processToastQueue();
-      }, 200);
-    }, 2500);
-  }
-
-  function checkBonusPalettes() {
-    const count = unlockedDiscoveries.size;
-    const midnightSwatch = document.getElementById("swatchMidnightClub");
-    const sandstoneSwatch = document.getElementById("swatchSandstone");
-    const lockBadgeMidnight = document.getElementById("lockBadgeMidnight");
-    const lockBadgeSandstone = document.getElementById("lockBadgeSandstone");
-
-    if (midnightSwatch) {
-      if (count >= 3) {
-        midnightSwatch.classList.remove("swatch-locked");
-        midnightSwatch.classList.add("swatch-unlocked");
-        midnightSwatch.removeAttribute("aria-disabled");
-        midnightSwatch.title = "Midnight Club (Unlocked)";
-        if (lockBadgeMidnight) lockBadgeMidnight.textContent = "Unlocked";
-      } else {
-        midnightSwatch.classList.add("swatch-locked");
-        midnightSwatch.classList.remove("swatch-unlocked");
-        midnightSwatch.setAttribute("aria-disabled", "true");
-        midnightSwatch.title = "Locked: Discover 3 secrets to unlock";
-        if (lockBadgeMidnight) lockBadgeMidnight.textContent = `${3 - count} needed`;
-      }
-    }
-
-    if (sandstoneSwatch) {
-      if (count >= 7) {
-        sandstoneSwatch.classList.remove("swatch-locked");
-        sandstoneSwatch.classList.add("swatch-unlocked");
-        sandstoneSwatch.removeAttribute("aria-disabled");
-        sandstoneSwatch.title = "Sandstone (Unlocked)";
-        if (lockBadgeSandstone) lockBadgeSandstone.textContent = "Unlocked";
-      } else {
-        sandstoneSwatch.classList.add("swatch-locked");
-        sandstoneSwatch.classList.remove("swatch-unlocked");
-        sandstoneSwatch.setAttribute("aria-disabled", "true");
-        sandstoneSwatch.title = "Locked: Discover 7 secrets to unlock";
-        if (lockBadgeSandstone) lockBadgeSandstone.textContent = `${7 - count} needed`;
-      }
-    }
-  }
-
-  function updateCollectionUI() {
-    const count = unlockedDiscoveries.size;
-    const countBadge = document.getElementById("navCollectionCount");
-    if (countBadge) countBadge.textContent = `${count}/10`;
-
-    const openBtn = document.getElementById("btnOpenCollection");
-    if (openBtn) {
-      openBtn.setAttribute("aria-label", `Open Collection drawer: ${count} of 10 discoveries found`);
-    }
-
-    const drawerCount = document.getElementById("drawerCountText");
-    if (drawerCount) drawerCount.textContent = `${count} of 10`;
-
-    const list = document.getElementById("collectionBadgesList");
-    if (!list) return;
-
-    list.innerHTML = "";
-    DISCOVERIES.forEach(d => {
-      const isUnlocked = unlockedDiscoveries.has(d.id);
-      const card = document.createElement("div");
-      card.className = `discovery-card ${isUnlocked ? "unlocked" : "locked"}`;
-      card.setAttribute("role", "listitem");
-
-      card.innerHTML = `
-        <div class="discovery-icon-box" aria-hidden="true">
-          ${d.icon}
-        </div>
-        <div class="discovery-info">
-          <div class="discovery-title-row">
-            <span class="discovery-name">${d.title}</span>
-            <span class="discovery-state-tag">${isUnlocked ? "Unlocked" : "Locked"}</span>
-          </div>
-          <p class="discovery-hint">${isUnlocked ? "Collected through curiosity." : d.hint}</p>
-        </div>
-      `;
-      list.appendChild(card);
-    });
-  }
-
-  function initPlayMode() {
-    const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const stored = safeStorageGet("pawnhub_play_mode", null);
-
-    if (stored !== null) {
-      isPlayModeOn = stored === "true";
-    } else {
-      isPlayModeOn = !prefersReducedMotion;
-    }
-
-    applyPlayModeUI();
-
-    const toggleBtn = document.getElementById("btnPlayModeToggle");
-    if (toggleBtn) {
-      toggleBtn.addEventListener("click", () => {
-        isPlayModeOn = !isPlayModeOn;
-        safeStorageSet("pawnhub_play_mode", isPlayModeOn);
-        applyPlayModeUI();
-      });
-    }
-
-    const navSoundBtn = document.getElementById("btnNavSoundToggle");
-    if (navSoundBtn) {
-      navSoundBtn.addEventListener("click", () => {
-        initAudio();
-        const btnMute = document.getElementById("btnMuteAudio");
-        if (btnMute) btnMute.click();
-        syncNavSoundUI();
-      });
-    }
-  }
-
-  function applyPlayModeUI() {
-    const body = document.body;
-    const toggleBtn = document.getElementById("btnPlayModeToggle");
-    const label = document.getElementById("playModeStateLabel");
-
-    if (isPlayModeOn) {
-      body.classList.remove("play-mode-off");
-      if (toggleBtn) toggleBtn.setAttribute("aria-pressed", "true");
-      if (label) label.textContent = "on";
-    } else {
-      body.classList.add("play-mode-off");
-      if (toggleBtn) toggleBtn.setAttribute("aria-pressed", "false");
-      if (label) label.textContent = "off";
-    }
-  }
-
-  function syncNavSoundUI() {
-    const navSoundBtn = document.getElementById("btnNavSoundToggle");
-    const label = document.getElementById("navSoundStateLabel");
-    const isSoundActive = audioUnlocked && !isMuted;
-
-    if (navSoundBtn) {
-      navSoundBtn.setAttribute("aria-pressed", isSoundActive ? "true" : "false");
-    }
-    if (label) {
-      label.textContent = isSoundActive ? "on" : "off";
-    }
-  }
-
-  // Pawn Progress Rail
-  const railSections = [
-    { id: "heroSection", num: "01" },
-    { id: "demoSection", num: "02" },
-    { id: "howItWorks", num: "03" },
-    { id: "pieceGallery", num: "04" },
-    { id: "silhouette", num: "05" },
-    { id: "themesGallery", num: "06" },
-    { id: "features", num: "07" },
-    { id: "privacy", num: "08" },
-    { id: "faq", num: "09" },
-    { id: "siteFooter", num: "10" }
-  ];
-
-  let hasPromotedRail = false;
-
-  function initPawnRail() {
-    const railButtons = document.querySelectorAll(".rail-btn");
-    const marker = document.getElementById("railPawnMarker");
-    const mobileProgressBar = document.getElementById("mobileProgressBar");
-
-    railButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const targetId = btn.dataset.target;
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-          targetEl.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
-        }
-      });
-    });
-
-    function onScroll() {
-      if (!isPlayModeOn) return;
-
-      const totalDocHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPos = window.scrollY;
-      const pct = totalDocHeight > 0 ? Math.min(100, Math.max(0, (scrollPos / totalDocHeight) * 100)) : 0;
-      if (mobileProgressBar) {
-        mobileProgressBar.style.width = `${pct}%`;
-      }
-
-      let activeIndex = 0;
-      const vMiddle = scrollPos + window.innerHeight * 0.45;
-
-      for (let i = 0; i < railSections.length; i++) {
-        const el = document.getElementById(railSections[i].id);
-        if (el) {
-          const top = el.offsetTop;
-          if (vMiddle >= top - 80) {
-            activeIndex = i;
-          }
-        }
-      }
-
-      const footerEl = document.getElementById("siteFooter");
-      if (footerEl) {
-        const fRect = footerEl.getBoundingClientRect();
-        if (fRect.top <= window.innerHeight || (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 60)) {
-          activeIndex = 9;
-          unlockDiscovery("footer_reached");
-          promoteRailPawn();
-        }
-      }
-
-      railButtons.forEach((b, idx) => {
-        if (idx === activeIndex) {
-          b.classList.add("active");
-          b.setAttribute("aria-current", "step");
-        } else {
-          b.classList.remove("active");
-          b.removeAttribute("aria-current");
-        }
-      });
-
-      if (marker && railButtons[activeIndex]) {
-        const targetBtn = railButtons[activeIndex];
-        const btnTop = targetBtn.offsetTop;
-        marker.style.transform = `translate(-50%, ${btnTop}px)`;
-      }
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    setTimeout(onScroll, 100);
-
-    const fEl = document.getElementById("siteFooter");
-    if (fEl && "IntersectionObserver" in window) {
-      const footerObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            unlockDiscovery("footer_reached");
-            promoteRailPawn();
-          }
-        });
-      }, { threshold: 0.1 });
-      footerObserver.observe(fEl);
-    }
-  }
-
-  function promoteRailPawn() {
-    if (hasPromotedRail) return;
-    hasPromotedRail = true;
-    const marker = document.getElementById("railPawnMarker");
-    const svg = document.getElementById("railPieceSvg");
-    if (marker && svg) {
-      marker.classList.add("promoted");
-      svg.innerHTML = `
-        <circle cx="50" cy="18" r="6" fill="var(--accent)"/>
-        <path d="M 28 36 L 50 24 L 72 36 L 68 54 L 32 54 Z" fill="var(--accent)"/>
-        <path d="M 32 54 C 36 62, 38 72, 30 84 L 70 84 C 62 72, 64 62, 68 54 Z" fill="var(--text-primary)"/>
-        <rect x="22" y="84" width="56" height="10" rx="3" fill="var(--text-primary)"/>
-      `;
-    }
-  }
-
-  // Bonk Rush Challenge
-  let isRushActive = false;
-  let rushTimerId = null;
-  let rushScore = 0;
-  let rushPersonalBest = parseInt(safeStorageGet("pawnhub_bonk_rush_best", "0"), 10) || 0;
-
-  const RUSH_TARGETS = [
-    {
-      white: { piece: "wq", from: "3,3" },
-      blackTarget: { piece: "br", at: "3,6" },
-      others: { "1,4": "bk", "7,4": "wk", "6,2": "wp" }
-    },
-    {
-      white: { piece: "wn", from: "5,5" },
-      blackTarget: { piece: "bp", at: "4,3" },
-      others: { "0,4": "bk", "7,4": "wk" }
-    },
-    {
-      white: { piece: "wb", from: "5,2" },
-      blackTarget: { piece: "bn", at: "2,5" },
-      others: { "0,4": "bk", "7,4": "wk", "6,6": "wp" }
-    },
-    {
-      white: { piece: "wr", from: "4,0" },
-      blackTarget: { piece: "bb", at: "4,6" },
-      others: { "0,4": "bk", "7,4": "wk" }
-    },
-    {
-      white: { piece: "wq", from: "4,4" },
-      blackTarget: { piece: "bq", at: "1,4" },
-      others: { "0,4": "bk", "7,4": "wk" }
-    }
-  ];
-  let rushTargetIndex = 0;
-
-  function initBonkRush() {
-    const btnRush = document.getElementById("btnBonkRush");
-    const btnQuit = document.getElementById("btnQuitBonkRush");
-    const bestVal = document.getElementById("rushBestVal");
-    if (bestVal) bestVal.textContent = rushPersonalBest;
-
-    if (btnRush) {
-      btnRush.addEventListener("click", () => {
-        if (isRushActive) return;
-        startBonkRush();
-      });
-    }
-
-    if (btnQuit) {
-      btnQuit.addEventListener("click", () => {
-        endBonkRush(true);
-      });
-    }
-  }
-
-  function startBonkRush() {
-    initAudio();
-    isRushActive = true;
-    rushScore = 0;
-    rushTargetIndex = 0;
-
-    const banner = document.getElementById("bonkRushBanner");
-    const timerVal = document.getElementById("rushTimerVal");
-    const scoreVal = document.getElementById("rushScoreVal");
-    const bestVal = document.getElementById("rushBestVal");
-
-    if (banner) banner.style.display = "flex";
-    if (timerVal) timerVal.textContent = "20.0s";
-    if (scoreVal) scoreVal.textContent = "0";
-    if (bestVal) bestVal.textContent = rushPersonalBest;
-
-    loadNextRushTarget();
-
-    const startTime = Date.now();
-    const duration = 20000;
-
-    if (rushTimerId) clearInterval(rushTimerId);
-    rushTimerId = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const left = Math.max(0, (duration - elapsed) / 1000);
-      if (timerVal) timerVal.textContent = left.toFixed(1) + "s";
-
-      if (left <= 0) {
-        clearInterval(rushTimerId);
-        rushTimerId = null;
-        endBonkRush(false);
-      }
-    }, 100);
-  }
-
-  function loadNextRushTarget() {
-    if (!isRushActive) return;
-    boardState = {};
-    const t = RUSH_TARGETS[rushTargetIndex % RUSH_TARGETS.length];
-    rushTargetIndex++;
-
-    boardState[t.white.from] = t.white.piece;
-    boardState[t.blackTarget.at] = t.blackTarget.piece;
-    Object.keys(t.others).forEach(pos => {
-      boardState[pos] = t.others[pos];
-    });
-
-    selectedSquare = null;
-    legalTargets = [];
-    renderDemoBoard(false);
-  }
-
-  function endBonkRush(cancelled = false) {
-    if (rushTimerId) {
-      clearInterval(rushTimerId);
-      rushTimerId = null;
-    }
-    isRushActive = false;
-
-    const banner = document.getElementById("bonkRushBanner");
-    if (banner) banner.style.display = "none";
-
-    if (!cancelled) {
-      if (rushScore > rushPersonalBest) {
-        rushPersonalBest = rushScore;
-        safeStorageSet("pawnhub_bonk_rush_best", rushPersonalBest);
-        const bestVal = document.getElementById("rushBestVal");
-        if (bestVal) bestVal.textContent = rushPersonalBest;
-      }
-      unlockDiscovery("bonk_rush");
-      showJokeBanner(`Round complete: ${rushScore} captures. Personal best: ${rushPersonalBest}.`);
-    } else {
-      showJokeBanner("Bonk Rush ended.");
-    }
-    resetBoardToy();
-  }
-
-  // Easter Eggs
-  function initEasterEggs() {
-    const brandLink = document.getElementById("brandLink");
-    const logoSvg = document.getElementById("brandLogoSvg");
-    let logoClicks = 0;
-    let logoResetTimer = null;
-
-    if (brandLink) {
-      brandLink.addEventListener("click", (e) => {
-        logoClicks++;
-        clearTimeout(logoResetTimer);
-        logoResetTimer = setTimeout(() => { logoClicks = 0; }, 2500);
-
-        if (logoClicks >= 5) {
-          e.preventDefault();
-          logoClicks = 0;
-          if (logoSvg) {
-            logoSvg.innerHTML = `
-              <circle cx="50" cy="18" r="6" fill="var(--accent)"/>
-              <path d="M 28 36 L 50 24 L 72 36 L 68 54 L 32 54 Z" fill="var(--accent)"/>
-              <path d="M 32 54 C 36 62, 38 72, 30 84 L 70 84 C 62 72, 64 62, 68 54 Z" fill="var(--text-primary)"/>
-              <rect x="22" y="84" width="56" height="10" rx="3" fill="var(--text-primary)"/>
-            `;
-          }
-          unlockDiscovery("easter_egg");
-          showJokeBanner("Easter Egg: Royal Logo Promoted");
-        }
-      });
-    }
-
-    const konamiSequence = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
-    let konamiIndex = 0;
-
-    window.addEventListener("keydown", (e) => {
-      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
-
-      if (e.key === konamiSequence[konamiIndex]) {
-        konamiIndex++;
-        if (konamiIndex === konamiSequence.length) {
-          konamiIndex = 0;
-          const keys = Object.keys(BOARD_THEMES);
-          const randomKey = keys[Math.floor(Math.random() * keys.length)];
-          activeThemeKey = randomKey;
-          renderDemoBoard(true);
-          playSound("win_fanfare");
-          unlockDiscovery("easter_egg");
-          showJokeBanner(`Konami Code: Swapped to ${randomKey}`);
-        }
-      } else {
-        konamiIndex = 0;
-      }
-
-      const nudgeKey = (e.key || "").toLowerCase();
-      if (["p", "n", "b", "r", "q", "k"].includes(nudgeKey)) {
-        const pieceEls = document.querySelectorAll(".board-piece");
-        let matched = false;
-        pieceEls.forEach(p => {
-          if (p.dataset.type === nudgeKey || (p.dataset.piece && p.dataset.piece.endsWith(nudgeKey))) {
-            p.classList.remove("piece-nudge");
-            void p.offsetWidth;
-            p.classList.add("piece-nudge");
-            matched = true;
-          }
-        });
-        if (matched) {
-          playSound("tap");
-          unlockDiscovery("easter_egg");
-        }
-      }
-
-      if (e.key === "?" || (e.shiftKey && e.key === "/")) {
-        toggleShortcutsModal();
-        unlockDiscovery("easter_egg");
-      }
-
-      if (e.key === "Escape") {
-        closeCollectionDrawer();
-        closeShortcutsModal();
-      }
-    });
-  }
-
-  // Drawers & Modals (Accessible Focus Trap)
-  let drawerTriggerElement = null;
-
-  function openCollectionDrawer() {
-    const drawer = document.getElementById("collectionDrawer");
-    const backdrop = document.getElementById("collectionBackdrop");
-    const openBtn = document.getElementById("btnOpenCollection");
-    if (!drawer || !backdrop) return;
-
-    drawerTriggerElement = document.activeElement;
-    drawer.hidden = false;
-    void drawer.offsetWidth;
-    drawer.classList.add("open");
-    backdrop.classList.add("visible");
-    if (openBtn) openBtn.setAttribute("aria-expanded", "true");
-
-    const closeBtn = document.getElementById("btnCloseCollection");
-    if (closeBtn) closeBtn.focus();
-  }
-
-  function closeCollectionDrawer() {
-    const drawer = document.getElementById("collectionDrawer");
-    const backdrop = document.getElementById("collectionBackdrop");
-    const openBtn = document.getElementById("btnOpenCollection");
-    if (!drawer || !backdrop) return;
-
-    drawer.classList.remove("open");
-    backdrop.classList.remove("visible");
-    if (openBtn) openBtn.setAttribute("aria-expanded", "false");
-
-    setTimeout(() => {
-      if (!drawer.classList.contains("open")) {
-        drawer.hidden = true;
-      }
-    }, 250);
-
-    if (drawerTriggerElement && drawerTriggerElement.focus) {
-      drawerTriggerElement.focus();
-    }
-  }
-
-  let shortcutsTriggerElement = null;
-
-  function toggleShortcutsModal() {
-    const modal = document.getElementById("shortcutsModal");
-    const backdrop = document.getElementById("shortcutsBackdrop");
-    if (!modal || !backdrop) return;
-
-    if (modal.classList.contains("open")) {
-      closeShortcutsModal();
-    } else {
-      shortcutsTriggerElement = document.activeElement;
-      modal.hidden = false;
-      void modal.offsetWidth;
-      modal.classList.add("open");
-      backdrop.classList.add("visible");
-      const closeBtn = document.getElementById("btnCloseShortcuts");
-      if (closeBtn) closeBtn.focus();
-    }
-  }
-
-  function closeShortcutsModal() {
-    const modal = document.getElementById("shortcutsModal");
-    const backdrop = document.getElementById("shortcutsBackdrop");
-    if (!modal || !backdrop) return;
-
-    modal.classList.remove("open");
-    backdrop.classList.remove("visible");
-
-    setTimeout(() => {
-      if (!modal.classList.contains("open")) {
-        modal.hidden = true;
-      }
-    }, 200);
-
-    if (shortcutsTriggerElement && shortcutsTriggerElement.focus) {
-      shortcutsTriggerElement.focus();
-    }
-  }
-
-  function initPrivacyObserver() {
-    const privacyEl = document.getElementById("privacy");
-    if (!privacyEl) return;
-
-    if ("IntersectionObserver" in window) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            unlockDiscovery("privacy_inspected");
-            observer.disconnect();
-          }
-        });
-      }, { threshold: 0.2 });
-      observer.observe(privacyEl);
-    }
-
-    const privacyLinks = document.querySelectorAll('a[href="#privacy"], a[href="/privacy.html"]');
-    privacyLinks.forEach(link => {
-      link.addEventListener("click", () => {
-        unlockDiscovery("privacy_inspected");
-      });
-    });
-  }
 
   // ========================================================================
-  // 15. Initialization & Event Listeners
+  // 14. Initialization & Event Listeners
   // ========================================================================
   function init() {
     initCanvas();
     renderDemoBoard();
-
-    // Gamification & Collection Setup
-    loadGamificationState();
-    initPlayMode();
-    initPawnRail();
-    initBonkRush();
-    initEasterEggs();
-    initPrivacyObserver();
-
-    // Collection Drawer Open / Close / Reset
-    const btnOpenCol = document.getElementById("btnOpenCollection");
-    const btnCloseCol = document.getElementById("btnCloseCollection");
-    const colBackdrop = document.getElementById("collectionBackdrop");
-    const btnResetProg = document.getElementById("btnResetProgress");
-
-    if (btnOpenCol) btnOpenCol.addEventListener("click", openCollectionDrawer);
-    if (btnCloseCol) btnCloseCol.addEventListener("click", closeCollectionDrawer);
-    if (colBackdrop) colBackdrop.addEventListener("click", closeCollectionDrawer);
-
-    if (btnResetProg) {
-      btnResetProg.addEventListener("click", () => {
-        unlockedDiscoveries.clear();
-        testedPalettes.clear();
-        testedReactions.clear();
-        safeStorageRemove("pawnhub_discoveries");
-        safeStorageRemove("pawnhub_bonk_rush_best");
-        rushPersonalBest = 0;
-        const bestVal = document.getElementById("rushBestVal");
-        if (bestVal) bestVal.textContent = "0";
-
-        updateCollectionUI();
-        checkBonusPalettes();
-        showJokeBanner("Progress reset.");
-      });
-    }
-
-    // Drawer Keyboard Focus Trap
-    const drawerEl = document.getElementById("collectionDrawer");
-    if (drawerEl) {
-      drawerEl.addEventListener("keydown", (e) => {
-        if (e.key === "Tab") {
-          const focusables = drawerEl.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
-          if (focusables.length === 0) return;
-          const first = focusables[0];
-          const last = focusables[focusables.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      });
-    }
-
-    // Shortcuts Modal Controls
-    const btnCloseShortcuts = document.getElementById("btnCloseShortcuts");
-    const shortcutsBackdrop = document.getElementById("shortcutsBackdrop");
-    const shortcutsModal = document.getElementById("shortcutsModal");
-
-    if (btnCloseShortcuts) btnCloseShortcuts.addEventListener("click", closeShortcutsModal);
-    if (shortcutsBackdrop) shortcutsBackdrop.addEventListener("click", closeShortcutsModal);
-
-    if (shortcutsModal) {
-      shortcutsModal.addEventListener("keydown", (e) => {
-        if (e.key === "Tab") {
-          const focusables = shortcutsModal.querySelectorAll("button, [href], [tabindex]:not([tabindex='-1'])");
-          if (focusables.length === 0) return;
-          const first = focusables[0];
-          const last = focusables[focusables.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-      });
-    }
 
     // Event Reaction Buttons
     const btnMove = document.getElementById("btnDemoMove");
@@ -2316,43 +1501,11 @@
     const btnQueen = document.getElementById("btnDemoQueen");
     const btnWin = document.getElementById("btnDemoWin");
 
-    function trackReactionClick(key) {
-      testedReactions.add(key);
-      if (testedReactions.size >= 5) {
-        unlockDiscovery("five_reactions");
-      }
-    }
-
-    if (btnMove) {
-      btnMove.addEventListener("click", () => {
-        triggerReactionNormalMove();
-        trackReactionClick("move");
-      });
-    }
-    if (btnCapture) {
-      btnCapture.addEventListener("click", () => {
-        triggerReactionCapture();
-        trackReactionClick("capture");
-      });
-    }
-    if (btnCheck) {
-      btnCheck.addEventListener("click", () => {
-        triggerReactionCheck();
-        trackReactionClick("check");
-      });
-    }
-    if (btnQueen) {
-      btnQueen.addEventListener("click", () => {
-        triggerReactionQueen();
-        trackReactionClick("queen");
-      });
-    }
-    if (btnWin) {
-      btnWin.addEventListener("click", () => {
-        triggerReactionCheckmate();
-        trackReactionClick("win");
-      });
-    }
+    if (btnMove) btnMove.addEventListener("click", triggerReactionNormalMove);
+    if (btnCapture) btnCapture.addEventListener("click", triggerReactionCapture);
+    if (btnCheck) btnCheck.addEventListener("click", triggerReactionCheck);
+    if (btnQueen) btnQueen.addEventListener("click", triggerReactionQueen);
+    if (btnWin) btnWin.addEventListener("click", triggerReactionCheckmate);
 
     // Board Toy Toolbar Buttons
     const btnReset = document.getElementById("btnResetBoard");
@@ -2376,12 +1529,7 @@
     const btnMute = document.getElementById("btnMuteAudio");
     const volumeSlider = document.getElementById("volumeSlider");
 
-    if (btnMute) {
-      btnMute.addEventListener("click", () => {
-        toggleMute();
-        syncNavSoundUI();
-      });
-    }
+    if (btnMute) btnMute.addEventListener("click", toggleMute);
     if (volumeSlider) {
       volumeSlider.addEventListener("input", (e) => {
         initAudio();
@@ -2410,12 +1558,6 @@
     const swatches = document.querySelectorAll(".theme-swatch-item");
     swatches.forEach(swatch => {
       swatch.addEventListener("click", () => {
-        if (swatch.classList.contains("swatch-locked")) {
-          const needed = swatch.dataset.theme === "midnight_club" ? 3 : 7;
-          showJokeBanner(`Locked: ${needed} discoveries needed (${unlockedDiscoveries.size}/10 found)`);
-          return;
-        }
-
         swatches.forEach(s => {
           s.classList.remove("active");
           s.setAttribute("aria-checked", "false");
@@ -2427,17 +1569,6 @@
         if (BOARD_THEMES[activeThemeKey]) {
           if (["crystal", "neon", "gold_obsidian", "paper_cut", "monsters"].includes(activeThemeKey)) {
             activePieceSetKey = activeThemeKey;
-          } else if (activeThemeKey === "midnight_club") {
-            activePieceSetKey = "gold_obsidian";
-          } else if (activeThemeKey === "sandstone") {
-            activePieceSetKey = "paper_cut";
-          }
-        }
-
-        if (["crystal", "neon", "gold_obsidian", "paper_cut", "monsters", "candy", "lava", "cyberpunk"].includes(activeThemeKey)) {
-          testedPalettes.add(activeThemeKey);
-          if (testedPalettes.size >= 8) {
-            unlockDiscovery("all_palettes");
           }
         }
 
@@ -2477,7 +1608,7 @@
       });
     }
 
-    // Tab visibility handling (pause particles, sounds, and rush timer when tab hidden)
+    // Tab visibility handling (pause particles and sounds when tab hidden)
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         if (audioCtx && audioCtx.state === "running") audioCtx.suspend();
@@ -2503,7 +1634,6 @@
       document.addEventListener(evtName, () => {
         if (!audioUnlocked) {
           initAudio();
-          syncNavSoundUI();
         }
       }, { once: true, passive: true });
     });

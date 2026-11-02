@@ -52,7 +52,7 @@
     particleCanvas.width = window.innerWidth;
     particleCanvas.height = window.innerHeight;
   }
-  window.addEventListener("resize", resizeParticleCanvas);
+  window.addEventListener("resize", resizeParticleCanvas, { passive: true });
 
   // Stop animations and clear canvas when tab is hidden
   document.addEventListener("visibilitychange", () => {
@@ -122,14 +122,13 @@
         continue;
       }
 
-      pCtx.save();
       pCtx.globalAlpha = Math.max(0, p.alpha);
       pCtx.fillStyle = p.color;
       pCtx.beginPath();
       pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       pCtx.fill();
-      pCtx.restore();
     }
+    pCtx.globalAlpha = 1.0;
 
     requestAnimationFrame(renderParticles);
   }

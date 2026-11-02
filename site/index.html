@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PawnHub — Animated Themes, Silhouettes &amp; Sound Effects for Chess</title>
   <meta name="description" content="A lightweight, privacy-first browser extension for Chess.com. Handcrafted vector piece sets, custom photo silhouettes, 28+ cartoon capture reactions, and synthesized sound effects.">
+  <meta name="keywords" content="chess, chess.com extension, chess themes, custom chess pieces, chess sounds, chess silhouettes, chess animations, chess board customization, open source chess, audio synthesizer, cartoon reactions">
+  <meta name="author" content="Harsh Vardhan Singh">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="application-name" content="PawnHub">
+  <meta name="apple-mobile-web-app-title" content="PawnHub">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="canonical" href="https://pawnhub.vercel.app/">
 
   <!-- Favicons & Manifest -->
@@ -22,6 +29,7 @@
 
   <!-- Open Graph Meta Tags -->
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
   <meta property="og:site_name" content="PawnHub">
   <meta property="og:title" content="PawnHub — Animated Themes, Silhouettes &amp; Sound Effects for Chess">
   <meta property="og:description" content="A lightweight, privacy-first browser extension for Chess.com. Handcrafted vector piece sets, custom photo silhouettes, 28+ cartoon capture reactions, and synthesized sound effects.">
@@ -38,29 +46,93 @@
   <meta name="twitter:image" content="https://pawnhub.vercel.app/assets/og-preview.png">
   <meta name="twitter:image:alt" content="PawnHub editorial specimen showing handcrafted chess piece sets and cartoon reactions">
 
-  <!-- JSON-LD Structured Data -->
+  <!-- JSON-LD Structured Data: Multi-Entity (WebSite, SoftwareApplication, FAQPage) -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "PawnHub",
-    "operatingSystem": "Chrome, Brave, Edge",
-    "applicationCategory": "BrowserApplication",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
+  [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "PawnHub",
+      "url": "https://pawnhub.vercel.app/",
+      "description": "Handcrafted themes, custom photo silhouettes, and synthesized sound effects for Chess.com.",
+      "author": {
+        "@type": "Person",
+        "name": "Harsh Vardhan Singh"
+      }
     },
-    "description": "A lightweight, privacy-first browser extension for Chess.com. Handcrafted vector piece sets, custom photo silhouettes, 28+ cartoon capture reactions, and synthesized sound effects.",
-    "featureList": [
-      "5 Handcrafted Vector SVG Piece Sets",
-      "28+ Cartoon Capture Physics Reactions",
-      "Custom Photo Silhouette Studio",
-      "Synthesized Web Audio Engine with Zero Tracking",
-      "12 Atmospheric Board Palettes",
-      "100% Client-Side Local-First Architecture"
-    ]
-  }
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "PawnHub",
+      "operatingSystem": "Chrome, Brave, Edge, Opera, Vivaldi",
+      "applicationCategory": "BrowserApplication, EntertainmentApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "A lightweight, privacy-first browser extension for Chess.com. Handcrafted vector piece sets, custom photo silhouettes, 28+ cartoon capture reactions, and synthesized sound effects.",
+      "featureList": [
+        "5 Handcrafted Vector SVG Piece Sets",
+        "28+ Cartoon Capture Physics Reactions",
+        "Custom Photo Silhouette Studio",
+        "Synthesized Web Audio Engine with Zero Tracking",
+        "12 Atmospheric Board Palettes",
+        "100% Client-Side Local-First Architecture"
+      ],
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {
+        "@type": "Person",
+        "name": "Harsh Vardhan Singh"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Does PawnHub violate Chess.com's fair play policy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. PawnHub is strictly cosmetic. It only changes client-side piece visuals, board colors, and plays cartoon sound effects. It never calculates moves, reads engine evaluations, or assists with gameplay in any way."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does PawnHub send any data to external servers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Never. PawnHub contains zero network telemetry and makes zero outbound HTTP requests. All custom sound extraction and silhouette masking execute 100% locally in your browser."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Will PawnHub slow down my browser?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. PawnHub uses pure CSS hardware-accelerated animations with zero heavy JS frameworks. Move reactions run in ~4ms (comfortably within the 16.6ms 60 FPS frame budget), and the extension pauses completely when your browser tab is inactive."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I upload my own custom sounds and photos?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. You can assign custom audio files (mp3, wav, ogg), extract audio directly from video files, and upload images to mask onto custom piece silhouettes with contrasting rim highlights."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I install PawnHub from GitHub?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Download the repository from GitHub, open chrome://extensions in your browser, enable 'Developer mode' in the top right, and click 'Load unpacked', selecting the repository folder."
+          }
+        }
+      ]
+    }
+  ]
   </script>
 
   <link rel="stylesheet" href="/styles.css">
@@ -575,7 +647,7 @@
             <h3>Handcrafted Vector Piece Sets</h3>
             <p>Crystal Glass, Neon Wireframe, Gold &amp; Obsidian, Paper Cut, and Friendly Monsters. Original inline SVG geometry with clean piece recognition.</p>
             <div class="feature-visual-frame">
-              <img src="/assets/screenshot1.webp" alt="PawnHub piece set selection screen" width="400" height="250" loading="lazy">
+              <img src="/assets/screenshot1.webp" alt="PawnHub piece set selection screen" width="400" height="250" loading="lazy" decoding="async">
             </div>
           </div>
 
@@ -585,7 +657,7 @@
             <h3>Custom Photo Silhouette Studio</h3>
             <p>Upload photos and mold them into chess silhouettes. Contrasting edge rims and role letters keep pieces instantly recognizable during fast games.</p>
             <div class="feature-visual-frame">
-              <img src="/assets/screenshot2.webp" alt="PawnHub Silhouette Studio image masking interface" width="400" height="250" loading="lazy">
+              <img src="/assets/screenshot2.webp" alt="PawnHub Silhouette Studio image masking interface" width="400" height="250" loading="lazy" decoding="async">
             </div>
           </div>
 
@@ -595,7 +667,7 @@
             <h3>Physics &amp; Cartoon Reactions</h3>
             <p>Captures trigger orbit spins, dust puffs, and shockwave rings. Checks trigger king trembling and comic speech bubble commentary.</p>
             <div class="feature-visual-frame">
-              <img src="/assets/screenshot3.webp" alt="PawnHub comedy animations and speech bubbles" width="400" height="250" loading="lazy">
+              <img src="/assets/screenshot3.webp" alt="PawnHub comedy animations and speech bubbles" width="400" height="250" loading="lazy" decoding="async">
             </div>
           </div>
 
@@ -605,7 +677,7 @@
             <h3>Local Soundpack Studio</h3>
             <p>Built-in Web Audio synthesis plus local drag-and-drop video/audio extraction. Assign sounds to 12 distinct game events with zero server uploads.</p>
             <div class="feature-visual-frame">
-              <img src="/assets/screenshot4.webp" alt="PawnHub soundpack manager and audio extractor" width="400" height="250" loading="lazy">
+              <img src="/assets/screenshot4.webp" alt="PawnHub soundpack manager and audio extractor" width="400" height="250" loading="lazy" decoding="async">
             </div>
           </div>
         </div>
@@ -641,7 +713,7 @@
 
           <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
             <a href="/privacy.html" class="btn btn-secondary">Read Privacy Policy →</a>
-            <a href="https://github.com/harsh/pawnhub" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Audit Source on GitHub</a>
+            <a href="https://github.com/harsh77vardhan/pawnhub" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Audit Source on GitHub</a>
           </div>
         </div>
       </div>
@@ -746,7 +818,7 @@
         <a href="#pieceGallery">Piece Sets</a>
         <a href="#features">Specifications</a>
         <a href="/privacy.html">Privacy Policy</a>
-        <a href="https://github.com/harsh/pawnhub" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://github.com/harsh77vardhan/pawnhub" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
     </div>
 

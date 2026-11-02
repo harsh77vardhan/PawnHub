@@ -128,6 +128,18 @@ function storageSet(items, callback) {
   }
 }
 
+let debounceStorageTimer = null;
+let pendingStorageItems = {};
+function debouncedStorageSet(items) {
+  Object.assign(pendingStorageItems, items);
+  clearTimeout(debounceStorageTimer);
+  debounceStorageTimer = setTimeout(() => {
+    const toSave = pendingStorageItems;
+    pendingStorageItems = {};
+    storageSet(toSave);
+  }, 100);
+}
+
 // DOM References
 const themeSelect = document.getElementById("theme-select");
 const whiteList = document.getElementById("white-pieces-list");
@@ -1619,7 +1631,7 @@ function setupEventListeners() {
       const size = `${e.target.value}px`;
       comedySettings.joke_size = size;
       if (jokeSizeLabel) jokeSizeLabel.textContent = size;
-      storageSet({ joke_size: size });
+      debouncedStorageSet({ joke_size: size });
     });
   }
 
@@ -1628,7 +1640,7 @@ function setupEventListeners() {
       const durationMs = parseInt(e.target.value, 10) * 100;
       comedySettings.joke_duration = durationMs;
       if (jokeDurationLabel) jokeDurationLabel.textContent = `${(durationMs / 1000).toFixed(1)}s`;
-      storageSet({ joke_duration: durationMs });
+      debouncedStorageSet({ joke_duration: durationMs });
     });
   }
 
@@ -1652,7 +1664,7 @@ function setupEventListeners() {
       const vol = parseInt(e.target.value, 10);
       comedySettings.comedy_volume = vol;
       if (volumeLabel) volumeLabel.textContent = `${vol}%`;
-      storageSet({ comedy_volume: vol });
+      debouncedStorageSet({ comedy_volume: vol });
       if (window.PawnHubAudio) window.PawnHubAudio.setVolume(vol);
     });
   }
