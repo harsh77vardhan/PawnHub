@@ -210,7 +210,14 @@ function handleBoardMutations(board) {
     lastMoveSignature = signature;
 
     const currentPieces = board.querySelectorAll(".piece");
-  const currentTotal = currentPieces.length;
+    const currentTotal = currentPieces.length;
+
+    // If tab is in background, update internal state silently to save CPU
+    if (document.hidden) {
+      boardSnapshot = takeBoardSnapshot(board);
+      previousPieceCount = currentTotal;
+      return;
+    }
 
   // A. Game Start
   if (currentTotal === 32 && !gameStartedLogged) {

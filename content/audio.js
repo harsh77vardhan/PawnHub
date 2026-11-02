@@ -64,6 +64,19 @@
   };
   unlockEvents.forEach(evt => window.addEventListener(evt, unlockHandler, true));
 
+  // Suspend AudioContext when tab is hidden to save CPU, resume when visible
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (audioCtx && audioCtx.state === "running") {
+        audioCtx.suspend().catch(() => {});
+      }
+    } else {
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+    }
+  });
+
   // Helper to create a noise buffer (for explosions, whooshes, splats)
   function createNoiseBuffer(duration = 1.0) {
     if (!audioCtx) return null;

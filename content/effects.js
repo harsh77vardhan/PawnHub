@@ -54,26 +54,43 @@
   }
   window.addEventListener("resize", resizeParticleCanvas);
 
+  // Stop animations and clear canvas when tab is hidden
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      activeParticles.length = 0;
+      if (pCtx && particleCanvas) {
+        pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+      }
+      isAnimationLoopRunning = false;
+    }
+  });
+
   // 3. Particle System (Capped count, auto-stops when idle for high performance)
   function emitParticles(x, y, count = 24, colors = ["#f59e0b", "#ef4444", "#38bdf8", "#ec4899", "#ffffff"]) {
-    // Respect prefers-reduced-motion
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Respect prefers-reduced-motion and skip rendering when tab is hidden
+    if (document.hidden || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     getParticleCanvas();
-    const safeCount = Math.min(count, 40); // Cap particles
+    const safeCount = Math.min(count, 32); // Cap new burst count
+
+    // Hard-cap total active particles to 50 for zero frame drops in rapid blitz
+    const MAX_ACTIVE_PARTICLES = 50;
+    if (activeParticles.length + safeCount > MAX_ACTIVE_PARTICLES) {
+      activeParticles.splice(0, (activeParticles.length + safeCount) - MAX_ACTIVE_PARTICLES);
+    }
 
     for (let i = 0; i < safeCount; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 4 + Math.random() * 9;
+      const speed = 4 + Math.random() * 8;
       activeParticles.push({
         x: x,
         y: y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed - 2, // Slight upward burst
-        size: 7 + Math.random() * 8,
+        size: 6 + Math.random() * 6,
         color: colors[Math.floor(Math.random() * colors.length)],
         alpha: 1.0,
-        decay: 0.018 + Math.random() * 0.02,
+        decay: 0.022 + Math.random() * 0.025,
         gravity: 0.28
       });
     }
