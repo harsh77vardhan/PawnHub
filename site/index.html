@@ -127,7 +127,7 @@
           "name": "How do I install PawnHub in my browser?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Click the Add to Chrome button on this page. Your browser will prompt you to confirm the installation and immediately add PawnHub to your extension toolbar with one click."
+            "text": "Download the zip archive, unzip the file, open chrome://extensions or brave://extensions in your browser, turn on Developer mode, and click 'Load unpacked' choosing the unzipped folder."
           }
         }
       ]
@@ -154,7 +154,6 @@
 
       <nav class="nav-links" aria-label="Primary Navigation">
         <a href="#demoSection" class="nav-link">Playable Toy</a>
-        <a href="#howItWorks" class="nav-link">Setup</a>
         <a href="#pieceGallery" class="nav-link">Piece Sets</a>
         <a href="#silhouette" class="nav-link">Studio</a>
         <a href="#themesGallery" class="nav-link">Themes</a>
@@ -164,7 +163,7 @@
       </nav>
 
       <div class="header-actions">
-        <a href="https://github.com/harsh77vardhan/pawnhub" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/harsh77vardhan/PawnHub" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">
           GitHub
         </a>
         <a href="#demoSection" class="btn btn-primary btn-sm">
@@ -196,13 +195,20 @@
           </p>
 
           <div class="hero-ctas">
-            <a href="https://chromewebstore.google.com/detail/pawnhub" class="btn btn-primary btn-lg" id="btnInstallHero" title="Install PawnHub extension directly to your browser">
-              Add to Chrome
-              <span class="btn-pill-note">Free</span>
+            <a href="/downloads/pawnhub-v1.0.0.zip" download="pawnhub-v1.0.0.zip" class="btn btn-primary btn-lg" id="btnDownloadHero">
+              Download for Chrome and Brave
+              <span class="btn-pill-note">v1.0.0 · 81 KB</span>
             </a>
-            <a href="https://github.com/harsh77vardhan/pawnhub" class="btn btn-secondary btn-lg" target="_blank" rel="noopener noreferrer">
-              Source on GitHub →
-            </a>
+          </div>
+
+          <div class="after-download-box">
+            <div class="after-download-title">After downloading:</div>
+            <ol class="after-download-steps">
+              <li>Unzip the downloaded file.</li>
+              <li>Open <code>chrome://extensions</code> (or <code>brave://extensions</code>) and turn on <strong>Developer mode</strong>.</li>
+              <li>Click <strong>Load unpacked</strong> and choose the unzipped folder.</li>
+            </ol>
+            <p class="after-download-note">One-click install will come with the Chrome Web Store release.</p>
           </div>
 
           <div class="hero-metadata-row">
@@ -472,46 +478,11 @@
       </div>
     </section>
 
-    <hr class="section-divider">
-
-    <!-- Section 03: Three-Step Setup -->
-    <section id="howItWorks" class="section" aria-labelledby="stepsTitle">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-label">03 / Three-Step Setup</div>
-          <h2 id="stepsTitle" class="section-title">Ready in under sixty seconds.</h2>
-          <p class="section-desc">No accounts, no external dependencies, and no configuration required.</p>
-        </div>
-
-        <div class="steps-grid">
-          <div class="step-card">
-            <span class="step-number" aria-hidden="true">1</span>
-            <h3 class="step-title">Add to Browser</h3>
-            <p>Click "Add to Chrome" to install PawnHub into Chrome, Brave, or Edge with one click. No registration, no extra software.</p>
-          </div>
-
-          <div class="step-card">
-            <span class="step-number" aria-hidden="true">2</span>
-            <h3 class="step-title">Open Any Match</h3>
-            <p>Play live bullet, blitz, rapid, daily games, or solve puzzles on Chess.com. PawnHub attaches to the chessboard DOM without interrupting games.</p>
-          </div>
-
-          <div class="step-card">
-            <span class="step-number" aria-hidden="true">3</span>
-            <h3 class="step-title">Play with Comedy</h3>
-            <p>Pieces bounce, spin, and fly off the board with cartoon shockwaves. Mold your own photos into piece shapes, and enjoy dynamic synthesized audio.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <hr class="section-divider">
-
-    <!-- Section 04: Handcrafted Piece Sets Gallery -->
+    <!-- Section 03: Handcrafted Piece Sets Gallery -->
     <section id="pieceGallery" class="section" aria-labelledby="pieceGalleryTitle">
       <div class="container">
         <div class="section-header">
-          <div class="section-label">04 / Vector Silhouettes</div>
+          <div class="section-label">03 / Vector Silhouettes</div>
           <h2 id="pieceGalleryTitle" class="section-title">Five original piece sets.</h2>
           <p class="section-desc">Every piece type features a distinct silhouette recognized instantly at blitz speeds, drawn with clean vector geometry and soft shading.</p>
         </div>
@@ -546,12 +517,12 @@
 
     <hr class="section-divider">
 
-    <!-- Section 05: Silhouette Studio -->
+    <!-- Section 04: Silhouette Studio -->
     <section id="silhouette" class="section" aria-labelledby="silhouetteTitle">
       <div class="container">
         <div class="silhouette-grid">
           <div>
-            <div class="section-label">05 / Silhouette Studio</div>
+            <div class="section-label">04 / Silhouette Studio</div>
             <h2 id="silhouetteTitle" class="section-title">Mold any photo into a chess piece.</h2>
             <p class="section-desc" style="margin-top: 1rem; margin-bottom: 1.5rem;">
               Never lose track of piece types when using custom avatars. PawnHub automatically clips your photos into handcrafted chess silhouettes and adds high-contrast side rims.
@@ -562,7 +533,7 @@
               <li><strong>Optional Badges:</strong> Display subtle corner role letters (P, N, B, R, Q, K) for blitz clarity.</li>
               <li><strong>100% Client-Side:</strong> Processed locally with HTML5 Canvas. Your photos never leave your machine.</li>
             </ul>
-            <a href="https://github.com/harsh/pawnhub" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/harsh77vardhan/PawnHub" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
               Read Studio Guide on GitHub →
             </a>
           </div>
@@ -614,11 +585,11 @@
 
     <hr class="section-divider">
 
-    <!-- Section 06: Themes Gallery (12 Themes) -->
+    <!-- Section 05: Themes Gallery (12 Themes) -->
     <section id="themesGallery" class="section" aria-labelledby="themesTitle">
       <div class="container">
         <div class="section-header">
-          <div class="section-label">06 / Board Palettes</div>
+          <div class="section-label">05 / Board Palettes</div>
           <h2 id="themesTitle" class="section-title">Twelve cohesive board themes.</h2>
           <p class="section-desc">Click any palette card to preview its board colors immediately on the toy board specimen above.</p>
         </div>
@@ -631,11 +602,11 @@
 
     <hr class="section-divider">
 
-    <!-- Section 07: Features Specifications with Real Screenshots -->
+    <!-- Section 06: Features Specifications with Real Screenshots -->
     <section id="features" class="section" aria-labelledby="featuresTitle">
       <div class="container">
         <div class="section-header">
-          <div class="section-label">07 / Extension Specifications</div>
+          <div class="section-label">06 / Extension Specifications</div>
           <h2 id="featuresTitle" class="section-title">Engineered for speed and calm restraint.</h2>
           <p class="section-desc">Every subsystem is built with pure web primitives. Zero heavy dependencies, zero tracking pixels, zero battery waste.</p>
         </div>
@@ -686,11 +657,11 @@
 
     <hr class="section-divider">
 
-    <!-- Section 08: Privacy Policy -->
+    <!-- Section 07: Privacy Policy -->
     <section id="privacy" class="section" aria-labelledby="privacyTitle">
       <div class="container">
         <div class="privacy-container-box">
-          <div class="section-label">08 / Privacy Commitment</div>
+          <div class="section-label">07 / Privacy Commitment</div>
           <h2 id="privacyTitle" class="section-title">Your data never leaves your device.</h2>
           <p class="section-desc" style="margin-top: 0.5rem;">
             PawnHub is designed from the ground up as a strictly offline, client-side cosmetic extension.
@@ -713,7 +684,7 @@
 
           <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
             <a href="/privacy.html" class="btn btn-secondary">Read Privacy Policy →</a>
-            <a href="https://github.com/harsh77vardhan/pawnhub" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Audit Source on GitHub</a>
+            <a href="https://github.com/harsh77vardhan/PawnHub" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Audit Source on GitHub</a>
           </div>
         </div>
       </div>
@@ -721,11 +692,11 @@
 
     <hr class="section-divider">
 
-    <!-- Section 09: Frequently Asked Questions -->
+    <!-- Section 08: Frequently Asked Questions -->
     <section id="faq" class="section" aria-labelledby="faqTitle">
       <div class="container">
         <div class="section-header">
-          <div class="section-label">09 / Questions &amp; Answers</div>
+          <div class="section-label">08 / Questions &amp; Answers</div>
           <h2 id="faqTitle" class="section-title">Frequently asked questions.</h2>
           <p class="section-desc">Clear, honest details about fair play, browser compatibility, and performance.</p>
         </div>
@@ -786,7 +757,7 @@
             </button>
             <div class="faq-answer">
               <p>
-                Click the <strong>Add to Chrome</strong> button at the top of this page. Your browser will prompt you to confirm the installation and automatically add PawnHub to your extension bar in one click. Pin the icon to your toolbar to access piece sets, themes, and sound effects anytime.
+                Download the zip file using the <strong>Download for Chrome and Brave</strong> button. Unzip the file, open <code>chrome://extensions</code> (or <code>brave://extensions</code>) in your browser, turn on Developer mode in the top right, click <strong>Load unpacked</strong>, and select the unzipped folder. One-click install will come with the Chrome Web Store release.
               </p>
             </div>
           </div>
@@ -810,15 +781,20 @@
         <p class="footer-tagline">
           An open-source chess customization extension. Free and local-first under the MIT License.
         </p>
+        <div class="footer-download-wrap" style="margin-top: 1rem;">
+          <a href="/downloads/pawnhub-v1.0.0.zip" download="pawnhub-v1.0.0.zip" class="btn btn-primary btn-sm">
+            Download for Chrome and Brave
+            <span class="btn-pill-note">v1.0.0 · 81 KB</span>
+          </a>
+        </div>
       </div>
 
       <div class="footer-links">
         <a href="#demoSection">Playable Toy</a>
-        <a href="#howItWorks">Setup</a>
         <a href="#pieceGallery">Piece Sets</a>
         <a href="#features">Specifications</a>
         <a href="/privacy.html">Privacy Policy</a>
-        <a href="https://github.com/harsh77vardhan/pawnhub" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://github.com/harsh77vardhan/PawnHub" target="_blank" rel="noopener noreferrer">GitHub</a>
       </div>
     </div>
 

@@ -28,7 +28,7 @@ let currentPieces = {};
 let currentRawUploads = {};
 let comedySettings = {
   comedy_enabled: true,
-  comedy_jokes: true,
+  comedy_jokes: false,
   comedy_effects: true,
   comedy_sounds: true,
   comedy_volume: 80,
@@ -166,7 +166,7 @@ function loadSavedSettings() {
     // Comedy settings
     comedySettings = {
       comedy_enabled: data.comedy_enabled !== false,
-      comedy_jokes: data.comedy_jokes !== false,
+      comedy_jokes: data.comedy_jokes === true,
       comedy_effects: data.comedy_effects !== false,
       comedy_sounds: data.comedy_sounds !== false,
       comedy_volume: typeof data.comedy_volume === "number" ? data.comedy_volume : 80,

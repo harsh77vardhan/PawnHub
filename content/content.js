@@ -11,7 +11,7 @@ let settings = {
   pawnhub_theme: "default",
   pawnhub_pieces: {},
   comedy_enabled: true,
-  comedy_jokes: true,
+  comedy_jokes: false,
   comedy_effects: true,
   comedy_sounds: true,
   comedy_volume: 80,
